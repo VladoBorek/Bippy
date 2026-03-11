@@ -1,4 +1,5 @@
-﻿using BusinessLayer.Services.Interfaces;
+﻿using BusinessLayer.Services;
+using BusinessLayer.Services.Interfaces;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -11,28 +12,36 @@ public class AppWorker : BackgroundService
     private readonly IGreetService greeterService;
     private readonly ILogger<AppWorker> logger;
     private readonly IHostApplicationLifetime lifetime;
+    private readonly ConsoleArgs consoleArgs;
+    private readonly IMnemonicService mnemonicService;
 
     public AppWorker(
         IGreetService greeterService,
         ILogger<AppWorker> logger,
-        IHostApplicationLifetime lifetime
+        IHostApplicationLifetime lifetime,
+        ConsoleArgs consoleArgs,
+        IMnemonicService mnemonicService
     )
     {
         this.greeterService = greeterService;
         this.logger = logger;
         this.lifetime = lifetime;
+        this.consoleArgs = consoleArgs;
+        this.mnemonicService = mnemonicService;
     }
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         try
         {
-            logger.LogInformation("Application starting");
-
-            var greeting = greeterService.Greet("World");
-            Console.WriteLine(greeting);
-
-            logger.LogInformation("Application finished successfully");
+            switch (consoleArgs.args[0])
+            {
+                case "--entropy":
+                    CallMnemonicSeed();
+                    break;
+                default:
+                    break;
+            }
         }
         catch (OperationCanceledException)
         {
@@ -49,5 +58,25 @@ public class AppWorker : BackgroundService
             // Signal the host to stop after work is done
             lifetime.StopApplication();
         }
+
+        return Task.CompletedTask;
+    }
+
+    private void CallMnemonicSeed()
+    {
+        string? entropyHex = consoleArgs.args.Length > 1 ? consoleArgs.args[1].Trim() : null;
+
+        var res = mnemonicService.GetMnemonicSeed(entropyHex);
+
+        if (res.IsFailed)
+        {
+            logger.LogError(string.Join(", ", res.Errors.Select(e => e.Message)));
+            return;
+        }
+
+        var mnemonicSeed = res.Value;
+
+        Console.WriteLine($"Mnemonic : {mnemonicSeed.Mnemonic}");
+        Console.WriteLine($"Seed     : {Convert.ToHexString(mnemonicSeed.Seed).ToLower()}");
     }
 }
