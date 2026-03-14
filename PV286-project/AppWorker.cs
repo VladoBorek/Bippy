@@ -43,7 +43,7 @@ public class AppWorker : BackgroundService
 
             switch (consoleArgs.args[0])
             {
-                case "--mnemonic":
+                case "mnemonic":
                     CallMnemonicSeed();
                     break;
                 default:
