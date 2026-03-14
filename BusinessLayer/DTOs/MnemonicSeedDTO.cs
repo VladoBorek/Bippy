@@ -6,5 +6,6 @@ namespace BusinessLayer.DTOs
     {
         public required Mnemonic Mnemonic { get; set; }
         public required byte[] Seed { get; set; }
+        public required bool IsBinary { get; set; }
     }
 }
