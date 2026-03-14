@@ -77,7 +77,7 @@ public class AppWorker : BackgroundService
 
         if (idx != -1 && entropy is null)
         {
-            Console.Error.WriteLine("Valid entropy value must be provided");
+            logger.LogError("Valid entropy value must be provided");
             return;
         }
 
