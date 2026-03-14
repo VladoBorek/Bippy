@@ -4,7 +4,7 @@ namespace BusinessLayer.DTOs
 {
     public class MnemonicSeedDTO
     {
-        public Mnemonic Mnemonic { get; set; }
-        public byte[] Seed { get; set; }
+        public required Mnemonic Mnemonic { get; set; }
+        public required byte[] Seed { get; set; }
     }
 }
