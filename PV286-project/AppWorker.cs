@@ -1,4 +1,5 @@
-﻿using BusinessLayer.Services;
+﻿using System.Data;
+using BusinessLayer.Services;
 using BusinessLayer.Services.Interfaces;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -34,12 +35,19 @@ public class AppWorker : BackgroundService
     {
         try
         {
+            if (consoleArgs.args.Length == 0)
+            {
+                CallHelp();
+                return Task.CompletedTask;
+            }
+
             switch (consoleArgs.args[0])
             {
-                case "--entropy":
+                case "--mnemonic":
                     CallMnemonicSeed();
                     break;
                 default:
+                    CallHelp();
                     break;
             }
         }
@@ -64,9 +72,16 @@ public class AppWorker : BackgroundService
 
     private void CallMnemonicSeed()
     {
-        string? entropyHex = consoleArgs.args.Length > 1 ? consoleArgs.args[1].Trim() : null;
+        var idx = Array.IndexOf(consoleArgs.args, "--entropy");
+        var entropy = idx >= 0 ? consoleArgs.args.ElementAtOrDefault(idx + 1)?.Trim() : null;
 
-        var res = mnemonicService.GetMnemonicSeed(entropyHex);
+        if (idx != -1 && entropy is null)
+        {
+            Console.Error.WriteLine("Valid entropy value must be provided");
+            return;
+        }
+
+        var res = mnemonicService.GetMnemonicSeed(entropy);
 
         if (res.IsFailed)
         {
@@ -78,5 +93,10 @@ public class AppWorker : BackgroundService
 
         Console.WriteLine($"Mnemonic : {mnemonicSeed.Mnemonic}");
         Console.WriteLine($"Seed     : {Convert.ToHexString(mnemonicSeed.Seed).ToLower()}");
+    }
+
+    private void CallHelp()
+    {
+        Console.WriteLine("Help tooltip not implemented");
     }
 }
