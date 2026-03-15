@@ -48,6 +48,7 @@ namespace BusinessLayer.Services
                         .Range(0, entropyInput.Length / 8)
                         .Select(i => Convert.ToByte(entropyInput.Substring(i * 8, 8), 2))
                         .ToArray();
+                
                 }
             }
             else
