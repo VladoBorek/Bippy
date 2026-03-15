@@ -31,7 +31,7 @@ namespace BusinessLayer.Services
                     IsEntropyBinary = true;
                 }
 
-                if (!ValidateInputEntropy(entropyInput, IsEntropyBinary))
+                if (!ValidateInputEntropyLength(entropyInput, IsEntropyBinary))
                 {
                     return Result.Fail(
                         "Entropy must be a hex string (32–64 hex chars) or binary string (128–256 bits), in steps of 32 bits."
@@ -69,7 +69,7 @@ namespace BusinessLayer.Services
             return Result.Ok(result);
         }
 
-        private static bool ValidateInputEntropy(string entropy, bool isBinary)
+        private static bool ValidateInputEntropyLength(string entropy, bool isBinary)
         {
             if (isBinary)
             {
