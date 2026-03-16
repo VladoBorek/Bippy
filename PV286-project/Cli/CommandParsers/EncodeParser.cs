@@ -5,6 +5,7 @@ using PV286_project.Cli.Interfaces;
 
 namespace PV286_project.Cli.CommandParsers
 {
+    // # TODO: CHANGE THIS TO ALSO TAKE INTO ACCOUNT THE POSITIONG OF THE ARGUMENTS
     public class EncodeParser : ICommandParser
     {
         public Result<ParsedCommand> Parse(string[] args)
