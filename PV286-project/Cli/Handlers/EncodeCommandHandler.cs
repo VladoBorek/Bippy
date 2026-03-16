@@ -60,7 +60,7 @@ namespace PV286_project.Cli.Handlers
                 : Convert.ToHexString(bytes).ToLowerInvariant();
         }
 
-        public static byte[] StringEntropyToBytes(string entropy, ValueFormat format)
+        private static byte[] StringEntropyToBytes(string entropy, ValueFormat format)
         {
             return format == ValueFormat.Hex
                 ? Convert.FromHexString(entropy)
