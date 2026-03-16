@@ -1,5 +1,4 @@
 ﻿using BusinessLayer.Services;
-using BusinessLayer.Services.Interfaces;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using PV286_project.Cli;
@@ -13,36 +12,28 @@ namespace PV286_project;
 // The host calls StartAsync → ExecuteAsync. When ExecuteAsync returns, the host shuts down.
 public class AppWorker : BackgroundService
 {
-    private readonly IGreetService greeterService;
     private readonly ILogger<AppWorker> logger;
     private readonly IHostApplicationLifetime lifetime;
     private readonly ConsoleArgs consoleArgs;
-    private readonly IMnemonicService mnemonicService;
     private readonly CliParser cliParser;
-    private readonly ICommandHandler<ParsedCommand> commandHandler;
     private readonly ICommandDispatcher commandDispatcher;
+    //private readonly IMnemonicService mnemonicService;
 
     public AppWorker(
-        IGreetService greeterService,
-        ILogger<AppWorker> logger,
-        IHostApplicationLifetime lifetime,
-        ConsoleArgs consoleArgs,
-        IMnemonicService mnemonicService,
-        CliParser cliParser,
-        ICommandHandler<ParsedCommand> commandHandler,
-        ICommandDispatcher commandDispatcher
-    )
+      ILogger<AppWorker> logger,
+      IHostApplicationLifetime lifetime,
+      ConsoleArgs consoleArgs,
+      CliParser cliParser,
+      ICommandDispatcher commandDispatcher
+  //IMnemonicService mnemonicService
+  )
     {
-        this.greeterService = greeterService;
         this.logger = logger;
         this.lifetime = lifetime;
         this.consoleArgs = consoleArgs;
-        this.mnemonicService = mnemonicService;
         this.cliParser = cliParser;
-        this.commandHandler = commandHandler;
         this.commandDispatcher = commandDispatcher;
-
-
+        //this.mnemonicService = mnemonicService;
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
