@@ -1,8 +1,11 @@
-﻿using System.Data;
-using BusinessLayer.Services;
+﻿using BusinessLayer.Services;
 using BusinessLayer.Services.Interfaces;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using PV286_project.Cli;
+using PV286_project.Cli.Commands;
+using PV286_project.Cli.Interfaces;
+using System.Data;
 
 namespace PV286_project;
 
@@ -15,13 +18,19 @@ public class AppWorker : BackgroundService
     private readonly IHostApplicationLifetime lifetime;
     private readonly ConsoleArgs consoleArgs;
     private readonly IMnemonicService mnemonicService;
+    private readonly CliParser cliParser;
+    private readonly ICommandHandler<ParsedCommand> commandHandler;
+    private readonly ICommandDispatcher commandDispatcher;
 
     public AppWorker(
         IGreetService greeterService,
         ILogger<AppWorker> logger,
         IHostApplicationLifetime lifetime,
         ConsoleArgs consoleArgs,
-        IMnemonicService mnemonicService
+        IMnemonicService mnemonicService,
+        CliParser cliParser,
+        ICommandHandler<ParsedCommand> commandHandler,
+        ICommandDispatcher commandDispatcher
     )
     {
         this.greeterService = greeterService;
@@ -29,28 +38,45 @@ public class AppWorker : BackgroundService
         this.lifetime = lifetime;
         this.consoleArgs = consoleArgs;
         this.mnemonicService = mnemonicService;
+        this.cliParser = cliParser;
+        this.commandHandler = commandHandler;
+        this.commandDispatcher = commandDispatcher;
+
+
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         try
         {
-            if (consoleArgs.args.Length == 0)
+            var parsedCommandResult = CliParser.Parse(consoleArgs.args);
+
+            if (parsedCommandResult.IsFailed)
             {
-                CallHelp();
+                Console.Error.WriteLine(
+                    string.Join(", ", parsedCommandResult.Errors.Select(e => e.Message))
+                );
+                Environment.ExitCode = 1;
                 return Task.CompletedTask;
             }
 
-            switch (consoleArgs.args[0])
+            ParsedCommand parsedCommand = parsedCommandResult.Value;
+
+            var commandResult = commandDispatcher.Dispatch(parsedCommand);
+
+            if (commandResult.IsFailed)
             {
-                case "mnemonic":
-                    CallMnemonicSeed();
-                    break;
-                default:
-                    CallHelp();
-                    break;
+                Console.Error.WriteLine(
+                    string.Join(", ", commandResult.Errors.Select(e => e.Message))
+                );
+                Environment.ExitCode = 1;
+                return Task.CompletedTask;
             }
+
+            Console.WriteLine(commandResult.Value);
+            Environment.ExitCode = 0;
         }
+
         catch (OperationCanceledException)
         {
             // Graceful shutdown via Ctrl+C — not an error
@@ -68,39 +94,5 @@ public class AppWorker : BackgroundService
         }
 
         return Task.CompletedTask;
-    }
-
-    private void CallMnemonicSeed()
-    {
-        var idx = Array.IndexOf(consoleArgs.args, "--entropy");
-        var entropy = idx >= 0 ? consoleArgs.args.ElementAtOrDefault(idx + 1)?.Trim() : null;
-
-        if (idx != -1 && entropy is null)
-        {
-            logger.LogError("Valid entropy value must be provided");
-            return;
-        }
-
-        var res = mnemonicService.GetMnemonicSeed(entropy);
-
-        if (res.IsFailed)
-        {
-            logger.LogError(string.Join(", ", res.Errors.Select(e => e.Message)));
-            return;
-        }
-
-        var mnemonicSeed = res.Value;
-
-        var seed = mnemonicSeed.IsBinary
-            ? string.Concat(mnemonicSeed.Seed.Select(b => Convert.ToString(b, 2).PadLeft(8, '0')))
-            : Convert.ToHexString(mnemonicSeed.Seed).ToLower();
-
-        Console.WriteLine($"Mnemonic : {mnemonicSeed.Mnemonic}");
-        Console.WriteLine($"Seed     : {seed}");
-    }
-
-    private void CallHelp()
-    {
-        Console.WriteLine("Help tooltip not implemented");
     }
 }
