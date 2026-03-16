@@ -1,4 +1,6 @@
-﻿using BusinessLayer.Services.Interfaces;
+﻿using System.Data;
+using BusinessLayer.Services;
+using BusinessLayer.Services.Interfaces;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -11,28 +13,43 @@ public class AppWorker : BackgroundService
     private readonly IGreetService greeterService;
     private readonly ILogger<AppWorker> logger;
     private readonly IHostApplicationLifetime lifetime;
+    private readonly ConsoleArgs consoleArgs;
+    private readonly IMnemonicService mnemonicService;
 
     public AppWorker(
         IGreetService greeterService,
         ILogger<AppWorker> logger,
-        IHostApplicationLifetime lifetime
+        IHostApplicationLifetime lifetime,
+        ConsoleArgs consoleArgs,
+        IMnemonicService mnemonicService
     )
     {
         this.greeterService = greeterService;
         this.logger = logger;
         this.lifetime = lifetime;
+        this.consoleArgs = consoleArgs;
+        this.mnemonicService = mnemonicService;
     }
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         try
         {
-            logger.LogInformation("Application starting");
+            if (consoleArgs.args.Length == 0)
+            {
+                CallHelp();
+                return Task.CompletedTask;
+            }
 
-            var greeting = greeterService.Greet("World");
-            Console.WriteLine(greeting);
-
-            logger.LogInformation("Application finished successfully");
+            switch (consoleArgs.args[0])
+            {
+                case "mnemonic":
+                    CallMnemonicSeed();
+                    break;
+                default:
+                    CallHelp();
+                    break;
+            }
         }
         catch (OperationCanceledException)
         {
@@ -49,5 +66,41 @@ public class AppWorker : BackgroundService
             // Signal the host to stop after work is done
             lifetime.StopApplication();
         }
+
+        return Task.CompletedTask;
+    }
+
+    private void CallMnemonicSeed()
+    {
+        var idx = Array.IndexOf(consoleArgs.args, "--entropy");
+        var entropy = idx >= 0 ? consoleArgs.args.ElementAtOrDefault(idx + 1)?.Trim() : null;
+
+        if (idx != -1 && entropy is null)
+        {
+            logger.LogError("Valid entropy value must be provided");
+            return;
+        }
+
+        var res = mnemonicService.GetMnemonicSeed(entropy);
+
+        if (res.IsFailed)
+        {
+            logger.LogError(string.Join(", ", res.Errors.Select(e => e.Message)));
+            return;
+        }
+
+        var mnemonicSeed = res.Value;
+
+        var seed = mnemonicSeed.IsBinary
+            ? string.Concat(mnemonicSeed.Seed.Select(b => Convert.ToString(b, 2).PadLeft(8, '0')))
+            : Convert.ToHexString(mnemonicSeed.Seed).ToLower();
+
+        Console.WriteLine($"Mnemonic : {mnemonicSeed.Mnemonic}");
+        Console.WriteLine($"Seed     : {seed}");
+    }
+
+    private void CallHelp()
+    {
+        Console.WriteLine("Help tooltip not implemented");
     }
 }

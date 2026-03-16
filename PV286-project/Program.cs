@@ -25,6 +25,7 @@ namespace PV286_project
 
                         // Register application services
                         services.AddSingleton<IGreetService, GreeterService>();
+                        services.AddSingleton<IMnemonicService, MnemonicService>();
 
                         // AppWorker is the application's main entry point via IHostedService.
                         // The host starts it, awaits its completion, then shuts down cleanly.
