@@ -14,7 +14,6 @@ namespace PV286_project.Cli
         {
             this.encodeHandler = encodeHandler;
             this.helpHandler = helpHandler;
-
         }
 
         // Takes a parsed command and forwards it to the appropriate handler
