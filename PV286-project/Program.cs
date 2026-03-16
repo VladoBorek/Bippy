@@ -6,6 +6,8 @@ using PV286_project.Cli;
 using PV286_project.Cli.Handlers;
 using PV286_project.Cli.Interfaces;
 
+
+
 namespace PV286_project
 {
     internal class Program
@@ -28,7 +30,7 @@ namespace PV286_project
 
                         // Business Layer
                         // Register application services
-                        services.AddSingleton<IGreetService, GreeterService>();
+                        //services.AddSingleton<IGreetService, GreeterService>();
                         services.AddSingleton<IMnemonicService, MnemonicService>();
 
                         // CLI orchestration
