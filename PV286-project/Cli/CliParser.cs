@@ -1,8 +1,8 @@
-﻿using BusinessLayer.Services;
+﻿using BusinessLayer.enums;
+using BusinessLayer.Services;
 using FluentResults;
 using PV286_project.Cli.CommandParsers;
 using PV286_project.Cli.Commands;
-using BusinessLayer.enums;
 using PV286_project.Cli.Interfaces;
 
 namespace PV286_project.Cli
@@ -44,7 +44,7 @@ namespace PV286_project.Cli
 
         }
 
-        public static string RequireValue(string[] args, ref int index, string option)
+        public static string GetRequiredValue(string[] args, ref int index, string option)
         {
             if (index + 1 >= args.Length || args[index + 1].StartsWith("--"))
             {

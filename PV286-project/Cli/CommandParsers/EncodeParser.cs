@@ -20,14 +20,14 @@ namespace PV286_project.Cli.CommandParsers
                 switch (args[i])
                 {
                     case "--entropy":
-                        entropy = CliParser.RequireValue(args, ref i, "--entropy");
+                        entropy = CliParser.GetRequiredValue(args, ref i, "--entropy");
                         break;
                     case "--format":
-                        format = CliParser.ParseFormat(CliParser.RequireValue(args, ref i, "--format"));
+                        format = CliParser.ParseFormat(CliParser.GetRequiredValue(args, ref i, "--format"));
                         formatProvided = true;
                         break;
-                    case "--input":  // #TODO: IMPLEENT batch parsing
-                        input = CliParser.RequireValue(args, ref i, "--input");
+                    case "--input":  // #TODO: implement batch input (so far only placeholder)
+                        input = CliParser.GetRequiredValue(args, ref i, "--input");
                         break;
                     default:
                         return Result.Fail($"Unrecognized option '{args[i]}' for 'encode'.");
