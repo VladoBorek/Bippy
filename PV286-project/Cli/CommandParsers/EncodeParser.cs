@@ -26,7 +26,7 @@ namespace PV286_project.Cli.CommandParsers
                         format = CliParser.ParseFormat(CliParser.RequireValue(args, ref i, "--format"));
                         formatProvided = true;
                         break;
-                    case "--input":
+                    case "--input":  // #TODO: IMPLEENT batch parsing
                         input = CliParser.RequireValue(args, ref i, "--input");
                         break;
                     default:
