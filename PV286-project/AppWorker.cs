@@ -1,8 +1,8 @@
-﻿using BusinessLayer.Services;
+﻿using PV286_project.Cli.Commands;
+using BusinessLayer.Services;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using PV286_project.Cli;
-using PV286_project.Cli.Commands;
 using PV286_project.Cli.Interfaces;
 using System.Data;
 
@@ -15,25 +15,19 @@ public class AppWorker : BackgroundService
     private readonly ILogger<AppWorker> logger;
     private readonly IHostApplicationLifetime lifetime;
     private readonly ConsoleArgs consoleArgs;
-    private readonly CliParser cliParser;
     private readonly ICommandDispatcher commandDispatcher;
-    //private readonly IMnemonicService mnemonicService;
 
     public AppWorker(
       ILogger<AppWorker> logger,
       IHostApplicationLifetime lifetime,
       ConsoleArgs consoleArgs,
-      CliParser cliParser,
       ICommandDispatcher commandDispatcher
-  //IMnemonicService mnemonicService
   )
     {
         this.logger = logger;
         this.lifetime = lifetime;
         this.consoleArgs = consoleArgs;
-        this.cliParser = cliParser;
         this.commandDispatcher = commandDispatcher;
-        //this.mnemonicService = mnemonicService;
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
