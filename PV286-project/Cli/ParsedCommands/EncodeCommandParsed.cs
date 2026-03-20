@@ -1,15 +1,15 @@
-﻿using BusinessLayer.enums;
+﻿//using BusinessLayer.enums;
 
-namespace PV286_project.Cli.Commands
-{
-    public class EncodeCommandParsed : ParsedCommand
-    {
-        public string? Entropy { get; init; }
-        public string? Input { get; init; }
-        //public ValueFormat Format { get; init; }
-        public ValueFormat Format = ValueFormat.Hex;
-        public bool FormatProvided = false;
+//namespace PV286_project.Cli.Commands
+//{
+//    public class EncodeCommandParsed : ParsedCommand
+//    {
+//        public byte[]? Entropy { get; init; }
+//        public ValueFormat Format { get; init; }
 
-        public EncodeCommandParsed() : base(CommandType.Encode) { }
-    }
-}
+//        public EncodeCommandParsed(byte[]? entropy, ValueFormat format) : base(CommandType.Encode) { 
+//            this.Entropy = entropy;
+//            this.Format = format;
+//        }
+//    }
+//}
