@@ -37,7 +37,7 @@ namespace PV286_project
                         services.AddSingleton<ICommandDispatcher, CommandDispatcher>();
 
                         // Command handlers
-                        services.AddSingleton<EncodeCommandHandler>();
+                        //services.AddSingleton<EncodeCommandHandler>();
                         services.AddSingleton<HelpCommandHandler>();
 
                         // AppWorker is the application's main entry point via IHostedService.

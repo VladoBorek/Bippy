@@ -20,4 +20,10 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Cli\CommandParsers\" />
+    <Folder Include="Cli\Handlers\" />
+    <Folder Include="Cli\Interfaces\" />
+  </ItemGroup>
+
 </Project>

@@ -1,5 +1,5 @@
-﻿using FluentResults;
-using PV286_project.Cli.Commands;
+﻿using PV286_project.Cli.Commands;
+using FluentResults;
 
 namespace PV286_project.Cli.Interfaces
 {
