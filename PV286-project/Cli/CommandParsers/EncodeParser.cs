@@ -1,19 +1,19 @@
 ﻿using BusinessLayer.enums;
+using BusinessLayer.Validators;
 using FluentResults;
 using PV286_project.Cli.Commands;
 using PV286_project.Cli.Interfaces;
 
 namespace PV286_project.Cli.CommandParsers
 {
-    // # TODO: CHANGE THIS TO ALSO TAKE INTO ACCOUNT THE POSITIONG OF THE ARGUMENTS
     public class EncodeParser : ICommandParser
     {
         public Result<ParsedCommand> Parse(string[] args)
         {
             string? entropy = null;
             ValueFormat format = ValueFormat.Hex;
-            string? input = null;
             bool formatProvided = false;
+            byte[]? entropyBytes = null;
 
             for (int i = 0; i < args.Length; i++)
             {
@@ -31,11 +31,11 @@ namespace PV286_project.Cli.CommandParsers
                         break;
 
                     case "--format":
-                        var valueResult = CliParser.GetRequiredValue(args, ref i, "--format");
-                        if (valueResult.IsFailed)
-                            return Result.Fail(valueResult.Errors);
+                        var FormatValueResult = CliParser.GetRequiredValue(args, ref i, "--format");
+                        if (FormatValueResult.IsFailed)
+                            return Result.Fail(FormatValueResult.Errors);
 
-                        var formatResult = CliParser.ParseFormat(valueResult.Value);
+                        var formatResult = CliParser.ParseFormat(FormatValueResult.Value);
                         if (formatResult.IsFailed)
                         {
                             return Result.Fail(formatResult.Errors);
@@ -44,13 +44,15 @@ namespace PV286_project.Cli.CommandParsers
                         formatProvided = true;
                         break;
 
-                    case "--input":  // #TODO: implement batch input (so far only placeholder)
-                        var inputResult = CliParser.GetRequiredValue(args, ref i, "--input");
-                        if (inputResult.IsFailed)
-                            return Result.Fail(inputResult.Errors);
 
-                        input = inputResult.Value;
-                        break;
+                    //case "--batch":  // #TODO: implement batch input (so far only placeholder)
+                    // encode --batch encode-batch.txt
+                    /*
+                     * encode --batch -
+                        (stdin:)
+                        --entropy 00000000000000000000000000000000 --format hex
+                        --entropy 11111111111111111111111111111111 --format hex
+                     */
 
                     default:
                         return Result.Fail($"Unrecognized option '{args[i]}' for 'encode'.");
@@ -58,25 +60,26 @@ namespace PV286_project.Cli.CommandParsers
                 }
             }
 
-            if (entropy is not null && !formatProvided)
+            var encodeValidationResult = EncodeValidator.IsValidEncode(entropy, formatProvided, format);
+            if (encodeValidationResult.IsFailed)
             {
-                return Result.Fail("Option '--format' is required when '--entropy' is provided.");
+                return Result.Fail(encodeValidationResult.Errors);
             }
 
-            if (entropy is not null && input is not null)
-            {
-                return Result.Fail("Use either '--entropy' or '--input', not both.");
-            }
+            entropyBytes = StringEntropyToBytes(entropy, format);
+            return Result.Ok<ParsedCommand>(new EncodeCommandParsed(entropyBytes, format));
+        }
+        private static byte[]? StringEntropyToBytes(string? entropy, ValueFormat format)
+        {
+            if (entropy is null)
+                return null;
 
-            var parsedCommand = new EncodeCommandParsed
-            {
-                Entropy = entropy,
-                Input = input,
-                Format = format,
-                FormatProvided = formatProvided
-            };
-
-            return Result.Ok<ParsedCommand>(parsedCommand);
+            return format == ValueFormat.Hex
+                ? Convert.FromHexString(entropy)
+                : Enumerable
+                    .Range(0, entropy.Length / 8)
+                    .Select(i => Convert.ToByte(entropy.Substring(i * 8, 8), 2))
+                    .ToArray();
         }
     }
 }
