@@ -44,22 +44,22 @@ namespace PV286_project.Cli
 
         }
 
-        public static string GetRequiredValue(string[] args, ref int index, string option)
+        public static Result<string> GetRequiredValue(string[] args, ref int index, string option)
         {
             if (index + 1 >= args.Length || args[index + 1].StartsWith("--"))
             {
-                throw new ArgumentException($"Missing value for '{option}'.");
+                return Result.Fail($"Missing value for '{option}'.");
             }
 
             index++;
-            return args[index];
+            return Result.Ok(args[index]);
         }
 
-        public static ValueFormat ParseFormat(string value) => value switch
+        public static Result<ValueFormat> ParseFormat(string value) => value switch
         {
-            "hex" => ValueFormat.Hex,
-            "bin" => ValueFormat.Bin,
-            _ => throw new ArgumentException("Format must be 'hex' or 'bin'."),
+            "hex" => Result.Ok(ValueFormat.Hex),
+            "bin" => Result.Ok(ValueFormat.Bin),
+            _ => Result.Fail("Format must be 'hex' or 'bin'."),
         };
 
     }

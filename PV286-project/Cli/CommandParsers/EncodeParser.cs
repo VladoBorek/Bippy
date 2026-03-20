@@ -20,17 +20,41 @@ namespace PV286_project.Cli.CommandParsers
                 switch (args[i])
                 {
                     case "--entropy":
-                        entropy = CliParser.GetRequiredValue(args, ref i, "--entropy");
+
+                        var entropyResult = CliParser.GetRequiredValue(args, ref i, "--entropy");
+                        if (entropyResult.IsFailed)
+                        {
+                            return Result.Fail(entropyResult.Errors);
+                        }
+
+                        entropy = entropyResult.Value;
                         break;
+
                     case "--format":
-                        format = CliParser.ParseFormat(CliParser.GetRequiredValue(args, ref i, "--format"));
+                        var valueResult = CliParser.GetRequiredValue(args, ref i, "--format");
+                        if (valueResult.IsFailed)
+                            return Result.Fail(valueResult.Errors);
+
+                        var formatResult = CliParser.ParseFormat(valueResult.Value);
+                        if (formatResult.IsFailed)
+                        {
+                            return Result.Fail(formatResult.Errors);
+                        }
+                        format = formatResult.Value;
                         formatProvided = true;
                         break;
+
                     case "--input":  // #TODO: implement batch input (so far only placeholder)
-                        input = CliParser.GetRequiredValue(args, ref i, "--input");
+                        var inputResult = CliParser.GetRequiredValue(args, ref i, "--input");
+                        if (inputResult.IsFailed)
+                            return Result.Fail(inputResult.Errors);
+
+                        input = inputResult.Value;
                         break;
+
                     default:
                         return Result.Fail($"Unrecognized option '{args[i]}' for 'encode'.");
+
                 }
             }
 
