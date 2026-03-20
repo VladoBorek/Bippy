@@ -1,10 +1,12 @@
-﻿using FluentResults;
-using PV286_project.Cli.Commands;
+﻿using PV286_project.Cli.Commands;
+using FluentResults;
 using PV286_project.Cli.Interfaces;
+
 
 namespace PV286_project.Cli.Handlers
 {
     // # TODO implement a proper help message that lists all available commands and their usage
+    // Still leaving this here until we decide on final solution how to handle logic of prining out final output and how to handle The Services 
     public class HelpCommandHandler : ICommandHandler<HelpCommandParsed>
     {
         public Result<string> Handle(HelpCommandParsed command)
