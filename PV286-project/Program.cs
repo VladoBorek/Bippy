@@ -30,7 +30,6 @@ namespace PV286_project
 
                         // Business Layer
                         // Register application services
-                        //services.AddSingleton<IGreetService, GreeterService>();
                         services.AddSingleton<IMnemonicService, MnemonicService>();
 
                         // CLI orchestration
