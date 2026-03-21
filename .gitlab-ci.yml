@@ -6,11 +6,15 @@ stages:
 
 build_job:
   stage: build
+  tags:
+    - shared-fi       
   script:
     - dotnet restore
     - dotnet build --configuration Release
 
 test_job:
   stage: test
+  tags:
+    - shared-fi        
   script:
     - dotnet test --configuration Release
