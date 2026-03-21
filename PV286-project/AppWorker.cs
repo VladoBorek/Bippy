@@ -1,6 +1,6 @@
 ﻿using System.Data;
+using BusinessLayer.CLI.Parser;
 using BusinessLayer.Services;
-using BusinessLayer.Services.Interfaces;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -10,46 +10,45 @@ namespace PV286_project;
 // The host calls StartAsync → ExecuteAsync. When ExecuteAsync returns, the host shuts down.
 public class AppWorker : BackgroundService
 {
-    private readonly IGreetService greeterService;
     private readonly ILogger<AppWorker> logger;
     private readonly IHostApplicationLifetime lifetime;
     private readonly ConsoleArgs consoleArgs;
-    private readonly IMnemonicService mnemonicService;
+    private readonly IArgParser argParser;
 
     public AppWorker(
-        IGreetService greeterService,
         ILogger<AppWorker> logger,
         IHostApplicationLifetime lifetime,
         ConsoleArgs consoleArgs,
-        IMnemonicService mnemonicService
+        IArgParser argParser
     )
     {
-        this.greeterService = greeterService;
         this.logger = logger;
         this.lifetime = lifetime;
         this.consoleArgs = consoleArgs;
-        this.mnemonicService = mnemonicService;
+        this.argParser = argParser;
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         try
         {
-            if (consoleArgs.args.Length == 0)
+            var parsedCommandRes = argParser.Parse(consoleArgs.args);
+            if (parsedCommandRes.IsFailed)
             {
-                CallHelp();
+                Console.Error.WriteLine(string.Join(", ", parsedCommandRes.Errors.Select(e => e.Message)));
+                Environment.Exit(1);
                 return Task.CompletedTask;
             }
 
-            switch (consoleArgs.args[0])
+            var handledCommandRes = parsedCommandRes.Value.Handle();
+            if (!handledCommandRes)
             {
-                case "mnemonic":
-                    CallMnemonicSeed();
-                    break;
-                default:
-                    CallHelp();
-                    break;
+                Environment.Exit(1);
+                return Task.CompletedTask;
             }
+
+            Environment.Exit(0);
+            return Task.CompletedTask;
         }
         catch (OperationCanceledException)
         {
@@ -68,39 +67,5 @@ public class AppWorker : BackgroundService
         }
 
         return Task.CompletedTask;
-    }
-
-    private void CallMnemonicSeed()
-    {
-        var idx = Array.IndexOf(consoleArgs.args, "--entropy");
-        var entropy = idx >= 0 ? consoleArgs.args.ElementAtOrDefault(idx + 1)?.Trim() : null;
-
-        if (idx != -1 && entropy is null)
-        {
-            logger.LogError("Valid entropy value must be provided");
-            return;
-        }
-
-        var res = mnemonicService.GetMnemonicSeed(entropy);
-
-        if (res.IsFailed)
-        {
-            logger.LogError(string.Join(", ", res.Errors.Select(e => e.Message)));
-            return;
-        }
-
-        var mnemonicSeed = res.Value;
-
-        var seed = mnemonicSeed.IsBinary
-            ? string.Concat(mnemonicSeed.Seed.Select(b => Convert.ToString(b, 2).PadLeft(8, '0')))
-            : Convert.ToHexString(mnemonicSeed.Seed).ToLower();
-
-        Console.WriteLine($"Mnemonic : {mnemonicSeed.Mnemonic}");
-        Console.WriteLine($"Seed     : {seed}");
-    }
-
-    private void CallHelp()
-    {
-        Console.WriteLine("Help tooltip not implemented");
     }
 }

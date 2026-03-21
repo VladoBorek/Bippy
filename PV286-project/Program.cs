@@ -1,4 +1,8 @@
-﻿using BusinessLayer.Services;
+﻿using BusinessLayer.CLI.Commands;
+using BusinessLayer.CLI.Commands.Encode;
+using BusinessLayer.CLI.Commands.Help;
+using BusinessLayer.CLI.Parser;
+using BusinessLayer.Services;
 using BusinessLayer.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -23,9 +27,12 @@ namespace PV286_project
                         // Register ConsoleArgs class for passing args to the rest of the application
                         services.AddSingleton(new ConsoleArgs { args = args });
 
+                        // Business Layer
                         // Register application services
-                        services.AddSingleton<IGreetService, GreeterService>();
-                        services.AddSingleton<IMnemonicService, MnemonicService>();
+                        services.AddSingleton<ICommandService, CommandService>();
+                        services.AddSingleton<ICliParser, EncodeParser>();
+                        services.AddSingleton<ICliParser, HelpParser>();
+                        services.AddSingleton<IArgParser, ArgParser>();
 
                         // AppWorker is the application's main entry point via IHostedService.
                         // The host starts it, awaits its completion, then shuts down cleanly.
