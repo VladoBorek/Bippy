@@ -1,14 +1,22 @@
-﻿using BusinessLayer.enums;
-using BusinessLayer.Validators;
+﻿using BusinessLayer.CLI.Utils;
+using BusinessLayer.CLI.Utils.Enums;
+using BusinessLayer.CLI.Validators;
+using BusinessLayer.Services.Interfaces;
 using FluentResults;
-using PV286_project.Cli.Commands;
-using PV286_project.Cli.Interfaces;
 
-namespace PV286_project.Cli.CommandParsers
+namespace BusinessLayer.CLI.Commands.Encode
 {
-    public class EncodeParser : ICommandParser
+    public class EncodeParser : ICliCommandParser
     {
-        public Result<ParsedCommand> Parse(string[] args)
+        public string CommandName => "encode";
+        private readonly ICommandService commandService;
+
+        public EncodeParser(ICommandService commandService)
+        {
+            this.commandService = commandService;
+        }
+
+        public Result<ICliCommand> Parse(string[] args)
         {
             string? entropy = null;
             ValueFormat format = ValueFormat.Hex;
@@ -21,7 +29,7 @@ namespace PV286_project.Cli.CommandParsers
                 {
                     case "--entropy":
 
-                        var entropyResult = CliParser.GetRequiredValue(args, ref i, "--entropy");
+                        var entropyResult = ParserUtils.GetRequiredValue(args, ref i, "--entropy");
                         if (entropyResult.IsFailed)
                         {
                             return Result.Fail(entropyResult.Errors);
@@ -31,11 +39,15 @@ namespace PV286_project.Cli.CommandParsers
                         break;
 
                     case "--format":
-                        var FormatValueResult = CliParser.GetRequiredValue(args, ref i, "--format");
+                        var FormatValueResult = ParserUtils.GetRequiredValue(
+                            args,
+                            ref i,
+                            "--format"
+                        );
                         if (FormatValueResult.IsFailed)
                             return Result.Fail(FormatValueResult.Errors);
 
-                        var formatResult = CliParser.ParseFormat(FormatValueResult.Value);
+                        var formatResult = ParserUtils.ParseFormat(FormatValueResult.Value);
                         if (formatResult.IsFailed)
                         {
                             return Result.Fail(formatResult.Errors);
@@ -43,7 +55,6 @@ namespace PV286_project.Cli.CommandParsers
                         format = formatResult.Value;
                         formatProvided = true;
                         break;
-
 
                     //case "--batch":  // #TODO: implement batch input (so far only placeholder)
                     // encode --batch encode-batch.txt
@@ -56,20 +67,25 @@ namespace PV286_project.Cli.CommandParsers
 
                     default:
                         return Result.Fail($"Unrecognized option '{args[i]}' for 'encode'.");
-
                 }
             }
 
-            var encodeValidationResult = EncodeValidator.IsValidEncode(entropy, formatProvided, format);
+            var encodeValidationResult = EncodeValidator.IsValidEncode(
+                entropy,
+                formatProvided,
+                format
+            );
             if (encodeValidationResult.IsFailed)
             {
                 return Result.Fail(encodeValidationResult.Errors);
             }
 
             entropyBytes = StringEntropyToBytes(entropy, format);
-            return Result.Ok<ParsedCommand>(new EncodeCommandParsed(entropyBytes, format));
+
+            return Result.Ok<ICliCommand>(new EncodeCommand(entropyBytes, format, commandService));
         }
-        private static byte[]? StringEntropyToBytes(string? entropy, ValueFormat format)
+
+        private byte[]? StringEntropyToBytes(string? entropy, ValueFormat format)
         {
             if (entropy is null)
                 return null;
@@ -83,5 +99,3 @@ namespace PV286_project.Cli.CommandParsers
         }
     }
 }
-
-

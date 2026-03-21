@@ -1,7 +1,7 @@
-﻿using BusinessLayer.enums;
+﻿using BusinessLayer.CLI.Utils.Enums;
 using FluentResults;
 
-namespace BusinessLayer.Validators
+namespace BusinessLayer.CLI.Validators
 {
     public class EntropyValidator
     {
@@ -9,27 +9,31 @@ namespace BusinessLayer.Validators
         {
             if (valueFormat == ValueFormat.Hex)
             {
-                if (!Validator.IsHex(entropy))
+                if (!ValidatorUtils.IsHex(entropy))
                 {
                     return Result.Fail("Entropy must be a valid hexadecimal string.");
                 }
 
                 if (!IsValidHexEntropyLength(entropy))
                 {
-                    return Result.Fail("Hex entropy must be 32 to 64 characters long, in 8-character increments.");
+                    return Result.Fail(
+                        "Hex entropy must be 32 to 64 characters long, in 8-character increments."
+                    );
                 }
 
                 return Result.Ok();
             }
 
-            if (!Validator.IsBinary(entropy))
+            if (!ValidatorUtils.IsBinary(entropy))
             {
                 return Result.Fail("Entropy must be a valid binary string.");
             }
 
             if (!IsValidBinaryEntropyLength(entropy))
             {
-                return Result.Fail("Binary entropy must be 128 to 256 bits long, in 32-bit increments.");
+                return Result.Fail(
+                    "Binary entropy must be 128 to 256 bits long, in 32-bit increments."
+                );
             }
 
             return Result.Ok();

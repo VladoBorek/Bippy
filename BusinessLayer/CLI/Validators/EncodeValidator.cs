@@ -1,12 +1,10 @@
-﻿using BusinessLayer.enums;
+﻿using BusinessLayer.CLI.Utils.Enums;
 using FluentResults;
-using System;
 
-namespace BusinessLayer.Validators
+namespace BusinessLayer.CLI.Validators
 {
     public class EncodeValidator
     {
-
         public static Result IsValidEncode(string? entropy, bool formatProvided, ValueFormat format)
         {
             if (entropy is not null && !formatProvided)

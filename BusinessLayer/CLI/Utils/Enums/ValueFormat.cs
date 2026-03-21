@@ -1,4 +1,4 @@
-﻿namespace BusinessLayer.enums
+﻿namespace BusinessLayer.CLI.Utils.Enums
 {
     public enum ValueFormat
     {

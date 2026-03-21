@@ -1,17 +1,12 @@
-﻿using PV286_project.Cli.Commands;
-using FluentResults;
-using PV286_project.Cli.Interfaces;
-
-
-namespace PV286_project.Cli.Handlers
+﻿namespace BusinessLayer.CLI.Commands.Help
 {
-    // # TODO implement a proper help message that lists all available commands and their usage
-    // Still leaving this here until we decide on final solution how to handle logic of prining out final output and how to handle The Services 
-    public class HelpCommandHandler : ICommandHandler<HelpCommandParsed>
+    public class HelpCommand : ICliCommand
     {
-        public Result<string> Handle(HelpCommandParsed command)
+        public string CommandName => "help";
+
+        public bool Handle()
         {
-            return Result.Ok(
+            Console.Write(
                 @"Mnemonic CLI
 
                 Generate a BIP-39 mnemonic phrase and seed.
@@ -32,9 +27,9 @@ namespace PV286_project.Cli.Handlers
                 Examples:
                   dotnet run -- encode
                   dotnet run -- encode --entropy 7ab32212dc82f67d9f38e254a6fd02c730b530f9f5e67d3c6bbdb62efb2a127 --format hex"
-                );
+            );
 
+            return true;
         }
-
     }
 }
