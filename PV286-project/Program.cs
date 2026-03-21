@@ -2,6 +2,12 @@
 using BusinessLayer.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Security.Cryptography;
+
+void Test()
+{
+    using var md5 = MD5.Create(); // SCS should warn about weak hash
+}
 
 namespace PV286_project
 {
