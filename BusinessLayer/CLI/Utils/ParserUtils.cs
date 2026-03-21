@@ -1,5 +1,5 @@
 ﻿using BusinessLayer.CLI.Utils.Enums;
-using FluentResults;
+using ResultPattern;
 
 namespace BusinessLayer.CLI.Utils
 {
@@ -9,7 +9,7 @@ namespace BusinessLayer.CLI.Utils
         {
             if (index + 1 >= args.Length || args[index + 1].StartsWith("--"))
             {
-                return Result.Fail($"Missing value for '{option}'.");
+                return Result.Fail<string>($"Missing value for '{option}'.");
             }
 
             index++;
@@ -21,7 +21,7 @@ namespace BusinessLayer.CLI.Utils
             {
                 "hex" => Result.Ok(ValueFormat.Hex),
                 "bin" => Result.Ok(ValueFormat.Bin),
-                _ => Result.Fail("Format must be 'hex' or 'bin'."),
+                _ => Result.Fail<ValueFormat>("Format must be 'hex' or 'bin'."),
             };
     }
 }

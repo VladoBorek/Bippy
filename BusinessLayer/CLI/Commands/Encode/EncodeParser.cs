@@ -2,7 +2,7 @@
 using BusinessLayer.CLI.Utils.Enums;
 using BusinessLayer.CLI.Validators;
 using BusinessLayer.Services.Interfaces;
-using FluentResults;
+using ResultPattern;
 
 namespace BusinessLayer.CLI.Commands.Encode
 {
@@ -32,7 +32,7 @@ namespace BusinessLayer.CLI.Commands.Encode
                         var entropyResult = ParserUtils.GetRequiredValue(args, ref i, "--entropy");
                         if (entropyResult.IsFailed)
                         {
-                            return Result.Fail(entropyResult.Errors);
+                            return Result.Fail<ICliCommand>(entropyResult);
                         }
 
                         entropy = entropyResult.Value;
@@ -45,12 +45,12 @@ namespace BusinessLayer.CLI.Commands.Encode
                             "--format"
                         );
                         if (FormatValueResult.IsFailed)
-                            return Result.Fail(FormatValueResult.Errors);
+                            return Result.Fail<ICliCommand>(FormatValueResult);
 
                         var formatResult = ParserUtils.ParseFormat(FormatValueResult.Value);
                         if (formatResult.IsFailed)
                         {
-                            return Result.Fail(formatResult.Errors);
+                            return Result.Fail<ICliCommand>(formatResult);
                         }
                         format = formatResult.Value;
                         formatProvided = true;
@@ -66,7 +66,9 @@ namespace BusinessLayer.CLI.Commands.Encode
                      */
 
                     default:
-                        return Result.Fail($"Unrecognized option '{args[i]}' for 'encode'.");
+                        return Result.Fail<ICliCommand>(
+                            $"Unrecognized option '{args[i]}' for 'encode'."
+                        );
                 }
             }
 
@@ -77,7 +79,7 @@ namespace BusinessLayer.CLI.Commands.Encode
             );
             if (encodeValidationResult.IsFailed)
             {
-                return Result.Fail(encodeValidationResult.Errors);
+                return Result.Fail<ICliCommand>(encodeValidationResult);
             }
 
             entropyBytes = StringEntropyToBytes(entropy, format);

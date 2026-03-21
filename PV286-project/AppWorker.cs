@@ -1,5 +1,4 @@
-﻿using System.Data;
-using BusinessLayer.CLI.Parser;
+﻿using BusinessLayer.CLI.Parser;
 using BusinessLayer.Services;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -35,7 +34,7 @@ public class AppWorker : BackgroundService
             var parsedCommandRes = argParser.Parse(consoleArgs.args);
             if (parsedCommandRes.IsFailed)
             {
-                Console.Error.WriteLine(string.Join(", ", parsedCommandRes.Errors.Select(e => e.Message)));
+                Console.Error.WriteLine(parsedCommandRes.Error);
                 Environment.Exit(1);
                 return Task.CompletedTask;
             }

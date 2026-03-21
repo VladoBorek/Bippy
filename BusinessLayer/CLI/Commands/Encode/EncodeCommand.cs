@@ -23,7 +23,7 @@ namespace BusinessLayer.CLI.Commands.Encode
 
             if (mnemonicSeedRes.IsFailed)
             {
-                Console.Error.WriteLine(string.Join(", ", mnemonicSeedRes.Errors.Select(e => e.Message)));
+                Console.Error.WriteLine(mnemonicSeedRes.Error);
                 return false;
             }
 

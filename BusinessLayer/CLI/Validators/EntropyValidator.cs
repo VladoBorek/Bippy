@@ -1,5 +1,5 @@
 ﻿using BusinessLayer.CLI.Utils.Enums;
-using FluentResults;
+using ResultPattern;
 
 namespace BusinessLayer.CLI.Validators
 {

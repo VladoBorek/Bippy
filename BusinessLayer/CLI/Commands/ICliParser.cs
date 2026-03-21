@@ -1,4 +1,4 @@
-﻿using FluentResults;
+﻿using ResultPattern;
 
 namespace BusinessLayer.CLI.Commands
 {

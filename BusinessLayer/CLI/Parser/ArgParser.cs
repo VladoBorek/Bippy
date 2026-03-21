@@ -1,6 +1,6 @@
 ﻿using BusinessLayer.CLI.Commands;
 using BusinessLayer.CLI.Commands.Help;
-using FluentResults;
+using ResultPattern;
 
 namespace BusinessLayer.CLI.Parser
 {
@@ -20,7 +20,7 @@ namespace BusinessLayer.CLI.Parser
 
             var command = commandParsers.FirstOrDefault(p => p.CommandName == args[0]);
             if (command is null)
-                return Result.Fail($"Unrecognized command '{args[0]}'.");
+                return Result.Fail<ICliCommand>($"Unrecognized command '{args[0]}'.");
 
             return command.Parse(args.Skip(1).ToArray());
         }

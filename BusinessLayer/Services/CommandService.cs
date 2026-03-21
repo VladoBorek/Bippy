@@ -1,8 +1,8 @@
 ﻿using BusinessLayer.CLI.Utils.Enums;
 using BusinessLayer.DTOs;
 using BusinessLayer.Services.Interfaces;
-using FluentResults;
 using NBitcoin;
+using ResultPattern;
 
 namespace BusinessLayer.Services
 {

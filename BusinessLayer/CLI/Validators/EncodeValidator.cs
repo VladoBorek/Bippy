@@ -1,5 +1,5 @@
 ﻿using BusinessLayer.CLI.Utils.Enums;
-using FluentResults;
+using ResultPattern;
 
 namespace BusinessLayer.CLI.Validators
 {
@@ -17,9 +17,7 @@ namespace BusinessLayer.CLI.Validators
                 var validationResult = EntropyValidator.IsValidEntropy(entropy, format);
                 if (validationResult.IsFailed)
                 {
-                    return Result.Fail(
-                        string.Join(", ", validationResult.Errors.Select(e => e.Message))
-                    );
+                    return Result.Fail(validationResult);
                 }
             }
 
