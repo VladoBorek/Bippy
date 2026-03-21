@@ -1,21 +1,18 @@
-﻿using BusinessLayer.enums;
+﻿using BusinessLayer.CLI.Utils.Enums;
 using NBitcoin;
 
 namespace BusinessLayer.DTOs
 {
-    public class MnemonicSeedDTO
+    public class EncodeDTO
     {
         public required Mnemonic Mnemonic { get; set; }
         public required byte[] Seed { get; set; }
         public required ValueFormat Format { get; set; }
-    
 
         public override string ToString()
         {
-            
-            return
-                $"Mnemonic : {Mnemonic}{Environment.NewLine}" +
-                $"Seed     : {BytesToString(Seed, Format)}";
+            return $"Mnemonic : {Mnemonic}{Environment.NewLine}"
+                + $"Seed     : {BytesToString(Seed, Format)}";
         }
 
         private static string BytesToString(byte[] bytes, ValueFormat format)
