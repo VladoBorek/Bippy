@@ -9,6 +9,8 @@ namespace PV286_project;
 // The host calls StartAsync → ExecuteAsync. When ExecuteAsync returns, the host shuts down.
 public class AppWorker : BackgroundService
 {
+    private const string StdinDelimiter = "|";
+
     private readonly ILogger<AppWorker> logger;
     private readonly IHostApplicationLifetime lifetime;
     private readonly ConsoleArgs consoleArgs;
@@ -64,49 +66,39 @@ public class AppWorker : BackgroundService
         }
 
         var source = args[1];
-        bool interactive = source == "-";
+        bool isStdin = source == "-";
 
-        TextReader reader = interactive ? Console.In : new StreamReader(source);
+        IEnumerable<string> invocations;
+
+        if (isStdin)
+        {
+            var rest = string.Join(" ", args.Skip(2));
+            invocations = rest.Split(StdinDelimiter, StringSplitOptions.RemoveEmptyEntries);
+        }
+        else
+        {
+            var lines = await File.ReadAllLinesAsync(source, stoppingToken);
+            invocations = lines.Where(l => !string.IsNullOrWhiteSpace(l));
+        }
 
         bool allSucceeded = true;
 
-        try
+        foreach (var invocation in invocations)
         {
-            if (interactive)
-                Console.WriteLine(
-                    "Batch interactive mode. Enter args separated by ' ', one invocation per line. EOF to exit."
-                );
+            if (stoppingToken.IsCancellationRequested)
+                break;
 
-            string? line;
-            while (
-                !stoppingToken.IsCancellationRequested
-                && (line = await reader.ReadLineAsync(stoppingToken)) != null
-            )
+            var lineArgs = invocation.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (lineArgs.Length == 0)
+                continue;
+
+            bool lineSuccess = Run(lineArgs);
+            if (!lineSuccess)
             {
-                if (string.IsNullOrWhiteSpace(line))
-                    continue;
-
-                var lineArgs = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-                bool lineSuccess = Run(lineArgs);
-                if (!lineSuccess)
-                {
-                    allSucceeded = false;
-                    await Console.Error.WriteLineAsync($"Line failed: {line}");
-                }
-
-                Console.WriteLine(Environment.NewLine);
-
-                if (interactive)
-                {
-                    await Console.Out.FlushAsync();
-                }
+                allSucceeded = false;
+                await Console.Error.WriteLineAsync($"Invocation failed: {invocation.Trim()}");
             }
-        }
-        finally
-        {
-            if (!interactive)
-                reader.Dispose();
+            Console.WriteLine(Environment.NewLine);
         }
 
         return allSucceeded;
