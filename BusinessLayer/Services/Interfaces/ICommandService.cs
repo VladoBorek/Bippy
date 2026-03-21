@@ -1,6 +1,6 @@
 ﻿using BusinessLayer.CLI.Utils.Enums;
 using BusinessLayer.DTOs;
-using FluentResults;
+using ResultPattern;
 
 namespace BusinessLayer.Services.Interfaces
 {

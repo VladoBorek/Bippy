@@ -1,5 +1,5 @@
 ﻿using BusinessLayer.CLI.Commands;
-using FluentResults;
+using ResultPattern;
 
 namespace BusinessLayer.CLI.Parser
 {
