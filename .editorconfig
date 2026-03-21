@@ -1,0 +1,34 @@
+root = true
+
+[*.cs]
+# Treat ALL SecurityCodeScan rules SCS0001–SCS0030 as errors
+dotnet_diagnostic.SCS0001.severity = error
+dotnet_diagnostic.SCS0002.severity = error
+dotnet_diagnostic.SCS0003.severity = error
+dotnet_diagnostic.SCS0004.severity = error
+dotnet_diagnostic.SCS0005.severity = error
+dotnet_diagnostic.SCS0006.severity = error
+dotnet_diagnostic.SCS0007.severity = error
+dotnet_diagnostic.SCS0008.severity = error
+dotnet_diagnostic.SCS0009.severity = error
+dotnet_diagnostic.SCS0010.severity = error
+dotnet_diagnostic.SCS0011.severity = error
+dotnet_diagnostic.SCS0012.severity = error
+dotnet_diagnostic.SCS0013.severity = error
+dotnet_diagnostic.SCS0014.severity = error
+dotnet_diagnostic.SCS0015.severity = error
+dotnet_diagnostic.SCS0016.severity = error
+dotnet_diagnostic.SCS0017.severity = error
+dotnet_diagnostic.SCS0018.severity = error
+dotnet_diagnostic.SCS0019.severity = error
+dotnet_diagnostic.SCS0020.severity = error
+dotnet_diagnostic.SCS0021.severity = error
+dotnet_diagnostic.SCS0022.severity = error
+dotnet_diagnostic.SCS0023.severity = error
+dotnet_diagnostic.SCS0024.severity = error
+dotnet_diagnostic.SCS0025.severity = error
+dotnet_diagnostic.SCS0026.severity = error
+dotnet_diagnostic.SCS0027.severity = error
+dotnet_diagnostic.SCS0028.severity = error
+dotnet_diagnostic.SCS0029.severity = error
+dotnet_diagnostic.SCS0030.severity = error
