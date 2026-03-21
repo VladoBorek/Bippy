@@ -1,0 +1,27 @@
+image: mcr.microsoft.com/dotnet/sdk:9.0
+
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - when: never  
+
+
+stages:
+  - build
+  - test
+
+build_job:
+  stage: build
+  tags:
+    - shared-fi       
+  script:
+    - dotnet restore
+    - dotnet build --configuration Release
+
+test_job:
+  stage: test
+  tags:
+    - shared-fi        
+  script:
+    - dotnet test --configuration Release
