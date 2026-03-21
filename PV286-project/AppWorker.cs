@@ -1,10 +1,8 @@
-﻿using PV286_project.Cli.Commands;
+﻿using System.Data;
+using BusinessLayer.CLI.Parser;
 using BusinessLayer.Services;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using PV286_project.Cli;
-using PV286_project.Cli.Interfaces;
-using System.Data;
 
 namespace PV286_project;
 
@@ -15,53 +13,43 @@ public class AppWorker : BackgroundService
     private readonly ILogger<AppWorker> logger;
     private readonly IHostApplicationLifetime lifetime;
     private readonly ConsoleArgs consoleArgs;
-    private readonly ICommandDispatcher commandDispatcher;
+    private readonly IArgParser parser;
 
     public AppWorker(
-      ILogger<AppWorker> logger,
-      IHostApplicationLifetime lifetime,
-      ConsoleArgs consoleArgs,
-      ICommandDispatcher commandDispatcher
-  )
+        ILogger<AppWorker> logger,
+        IHostApplicationLifetime lifetime,
+        ConsoleArgs consoleArgs,
+        IArgParser parser
+    )
     {
         this.logger = logger;
         this.lifetime = lifetime;
         this.consoleArgs = consoleArgs;
-        this.commandDispatcher = commandDispatcher;
+        this.parser = parser;
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         try
         {
-            var parsedCommandResult = CliParser.Parse(consoleArgs.args);
-
-            if (parsedCommandResult.IsFailed)
+            var parseRes = parser.Parse(consoleArgs.args);
+            if (parseRes.IsFailed)
             {
-                Console.Error.WriteLine(
-                    string.Join(", ", parsedCommandResult.Errors.Select(e => e.Message))
-                );
-                Environment.ExitCode = 1;
+                Console.Error.WriteLine(string.Join(", ", parseRes.Errors.Select(e => e.Message)));
+                Environment.Exit(1);
                 return Task.CompletedTask;
             }
 
-            ParsedCommand parsedCommand = parsedCommandResult.Value;
-
-            var commandResult = commandDispatcher.Dispatch(parsedCommand);
-
-            if (commandResult.IsFailed)
+            var handleRes = parseRes.Value.Handle();
+            if (!handleRes)
             {
-                Console.Error.WriteLine(
-                    string.Join(", ", commandResult.Errors.Select(e => e.Message))
-                );
-                Environment.ExitCode = 1;
+                Environment.Exit(1);
                 return Task.CompletedTask;
             }
 
-            Console.WriteLine(commandResult.Value);
-            Environment.ExitCode = 0;
+            Environment.Exit(0);
+            return Task.CompletedTask;
         }
-
         catch (OperationCanceledException)
         {
             // Graceful shutdown via Ctrl+C — not an error
