@@ -6,7 +6,7 @@ using FluentResults;
 
 namespace BusinessLayer.CLI.Commands.Encode
 {
-    public class EncodeParser : ICliCommandParser
+    public class EncodeParser : ICliParser
     {
         public string CommandName => "encode";
         private readonly ICommandService commandService;

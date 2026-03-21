@@ -2,7 +2,7 @@
 
 namespace BusinessLayer.CLI.Commands.Help
 {
-    public class HelpParser : ICliCommandParser
+    public class HelpParser : ICliParser
     {
         public string CommandName => "help";
 

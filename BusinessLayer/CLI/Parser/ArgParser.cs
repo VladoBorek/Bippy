@@ -6,9 +6,9 @@ namespace BusinessLayer.CLI.Parser
 {
     public class ArgParser : IArgParser
     {
-        private readonly IEnumerable<ICliCommandParser> parsers;
+        private readonly IEnumerable<ICliParser> parsers;
 
-        public ArgParser(IEnumerable<ICliCommandParser> parsers)
+        public ArgParser(IEnumerable<ICliParser> parsers)
         {
             this.parsers = parsers;
         }

@@ -30,8 +30,8 @@ namespace PV286_project
                         // Business Layer
                         // Register application services
                         services.AddSingleton<ICommandService, CommandService>();
-                        services.AddTransient<ICliCommandParser, EncodeParser>();
-                        services.AddTransient<ICliCommandParser, HelpParser>();
+                        services.AddSingleton<ICliParser, EncodeParser>();
+                        services.AddSingleton<ICliParser, HelpParser>();
                         services.AddSingleton<IArgParser, ArgParser>();
 
                         // AppWorker is the application's main entry point via IHostedService.

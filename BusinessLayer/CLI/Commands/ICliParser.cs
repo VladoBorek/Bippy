@@ -2,7 +2,7 @@
 
 namespace BusinessLayer.CLI.Commands
 {
-    public interface ICliCommandParser
+    public interface ICliParser
     {
         string CommandName { get; }
         Result<ICliCommand> Parse(string[] args);
