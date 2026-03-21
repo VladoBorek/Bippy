@@ -27,31 +27,21 @@ public class AppWorker : BackgroundService
         this.argParser = argParser;
     }
 
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         try
         {
-            var parsedCommandRes = argParser.Parse(consoleArgs.args);
-            if (parsedCommandRes.IsFailed)
-            {
-                Console.Error.WriteLine(parsedCommandRes.Error);
-                Environment.Exit(1);
-                return Task.CompletedTask;
-            }
+            var args = consoleArgs.args;
 
-            var handledCommandRes = parsedCommandRes.Value.Handle();
-            if (!handledCommandRes)
-            {
-                Environment.Exit(1);
-                return Task.CompletedTask;
-            }
+            bool success =
+                args.Length > 0 && args[0] == "batch"
+                    ? await RunBatchAsync(args, stoppingToken)
+                    : Run(args);
 
-            Environment.Exit(0);
-            return Task.CompletedTask;
+            Environment.ExitCode = success ? 0 : 1;
         }
         catch (OperationCanceledException)
         {
-            // Graceful shutdown via Ctrl+C — not an error
             logger.LogWarning("Application was cancelled");
         }
         catch (Exception ex)
@@ -61,10 +51,76 @@ public class AppWorker : BackgroundService
         }
         finally
         {
-            // Signal the host to stop after work is done
             lifetime.StopApplication();
         }
+    }
 
-        return Task.CompletedTask;
+    private async Task<bool> RunBatchAsync(string[] args, CancellationToken stoppingToken)
+    {
+        if (args.Length < 2)
+        {
+            await Console.Error.WriteLineAsync("Usage: batch <filepath|->");
+            return false;
+        }
+
+        var source = args[1];
+        bool interactive = source == "-";
+
+        TextReader reader = interactive ? Console.In : new StreamReader(source);
+
+        bool allSucceeded = true;
+
+        try
+        {
+            if (interactive)
+                Console.WriteLine(
+                    "Batch interactive mode. Enter args separated by ' ', one invocation per line. EOF to exit."
+                );
+
+            string? line;
+            while (
+                !stoppingToken.IsCancellationRequested
+                && (line = await reader.ReadLineAsync(stoppingToken)) != null
+            )
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+
+                var lineArgs = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                bool lineSuccess = Run(lineArgs);
+                if (!lineSuccess)
+                {
+                    allSucceeded = false;
+                    await Console.Error.WriteLineAsync($"Line failed: {line}");
+                }
+
+                Console.WriteLine(Environment.NewLine);
+
+                if (interactive)
+                {
+                    await Console.Out.FlushAsync();
+                }
+            }
+        }
+        finally
+        {
+            if (!interactive)
+                reader.Dispose();
+        }
+
+        return allSucceeded;
+    }
+
+    private bool Run(string[] args)
+    {
+        var parsedCommandRes = argParser.Parse(args);
+        if (parsedCommandRes.IsFailed)
+        {
+            Console.Error.WriteLine(parsedCommandRes.Error);
+            return false;
+        }
+
+        return parsedCommandRes.Value.Handle();
     }
 }
