@@ -19,15 +19,15 @@ namespace BusinessLayer.CLI.Commands.Encode
 
         public bool Handle()
         {
-            var res = commandService.Encode(Entropy, Format);
+            var mnemonicSeedRes = commandService.Encode(Entropy, Format);
 
-            if (res.IsFailed)
+            if (mnemonicSeedRes.IsFailed)
             {
-                Console.Error.WriteLine(string.Join(", ", res.Errors.Select(e => e.Message)));
+                Console.Error.WriteLine(string.Join(", ", mnemonicSeedRes.Errors.Select(e => e.Message)));
                 return false;
             }
 
-            Console.Write(res.Value.ToString());
+            Console.Write(mnemonicSeedRes.Value.ToString());
             return true;
         }
     }

@@ -6,11 +6,11 @@ namespace BusinessLayer.CLI.Parser
 {
     public class ArgParser : IArgParser
     {
-        private readonly IEnumerable<ICliParser> parsers;
+        private readonly IEnumerable<ICliParser> commandParsers;
 
-        public ArgParser(IEnumerable<ICliParser> parsers)
+        public ArgParser(IEnumerable<ICliParser> commandParsers)
         {
-            this.parsers = parsers;
+            this.commandParsers = commandParsers;
         }
 
         public Result<ICliCommand> Parse(string[] args)
@@ -18,11 +18,11 @@ namespace BusinessLayer.CLI.Parser
             if (args.Length == 0 || args[0] == "--help")
                 return Result.Ok<ICliCommand>(new HelpCommand());
 
-            var parser = parsers.FirstOrDefault(p => p.CommandName == args[0]);
-            if (parser is null)
+            var command = commandParsers.FirstOrDefault(p => p.CommandName == args[0]);
+            if (command is null)
                 return Result.Fail($"Unrecognized command '{args[0]}'.");
 
-            return parser.Parse(args.Skip(1).ToArray());
+            return command.Parse(args.Skip(1).ToArray());
         }
     }
 }

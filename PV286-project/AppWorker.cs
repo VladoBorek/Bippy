@@ -13,35 +13,35 @@ public class AppWorker : BackgroundService
     private readonly ILogger<AppWorker> logger;
     private readonly IHostApplicationLifetime lifetime;
     private readonly ConsoleArgs consoleArgs;
-    private readonly IArgParser parser;
+    private readonly IArgParser argParser;
 
     public AppWorker(
         ILogger<AppWorker> logger,
         IHostApplicationLifetime lifetime,
         ConsoleArgs consoleArgs,
-        IArgParser parser
+        IArgParser argParser
     )
     {
         this.logger = logger;
         this.lifetime = lifetime;
         this.consoleArgs = consoleArgs;
-        this.parser = parser;
+        this.argParser = argParser;
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         try
         {
-            var parseRes = parser.Parse(consoleArgs.args);
-            if (parseRes.IsFailed)
+            var parsedCommandRes = argParser.Parse(consoleArgs.args);
+            if (parsedCommandRes.IsFailed)
             {
-                Console.Error.WriteLine(string.Join(", ", parseRes.Errors.Select(e => e.Message)));
+                Console.Error.WriteLine(string.Join(", ", parsedCommandRes.Errors.Select(e => e.Message)));
                 Environment.Exit(1);
                 return Task.CompletedTask;
             }
 
-            var handleRes = parseRes.Value.Handle();
-            if (!handleRes)
+            var handledCommandRes = parsedCommandRes.Value.Handle();
+            if (!handledCommandRes)
             {
                 Environment.Exit(1);
                 return Task.CompletedTask;
