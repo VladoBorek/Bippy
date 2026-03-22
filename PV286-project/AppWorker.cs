@@ -33,12 +33,17 @@ public class AppWorker : BackgroundService
     {
         try
         {
-            var args = consoleArgs.args;
+            var isBatch = consoleArgs.args.Length > 0 && consoleArgs.args[0] == "batch";
+            bool success;
 
-            bool success =
-                args.Length > 0 && args[0] == "batch"
-                    ? await RunBatchAsync(args, stoppingToken)
-                    : Run(args);
+            if (!isBatch)
+            {
+                success = Run(consoleArgs.args);
+            }
+            else
+            {
+                success = await RunBatchAsync();
+            }
 
             Environment.ExitCode = success ? 0 : 1;
         }
@@ -57,53 +62,6 @@ public class AppWorker : BackgroundService
         }
     }
 
-    private async Task<bool> RunBatchAsync(string[] args, CancellationToken stoppingToken)
-    {
-        if (args.Length < 2)
-        {
-            await Console.Error.WriteLineAsync("Usage: batch <filepath|->");
-            return false;
-        }
-
-        var source = args[1];
-        bool isStdin = source == "-";
-
-        IEnumerable<string> invocations;
-
-        if (isStdin)
-        {
-            var rest = string.Join(" ", args.Skip(2));
-            invocations = rest.Split(StdinDelimiter, StringSplitOptions.RemoveEmptyEntries);
-        }
-        else
-        {
-            var lines = await File.ReadAllLinesAsync(source, stoppingToken);
-            invocations = lines.Where(l => !string.IsNullOrWhiteSpace(l));
-        }
-
-        bool allSucceeded = true;
-
-        foreach (var invocation in invocations)
-        {
-            if (stoppingToken.IsCancellationRequested)
-                break;
-
-            var lineArgs = invocation.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            if (lineArgs.Length == 0)
-                continue;
-
-            bool lineSuccess = Run(lineArgs);
-            if (!lineSuccess)
-            {
-                allSucceeded = false;
-                await Console.Error.WriteLineAsync($"Invocation failed: {invocation.Trim()}");
-            }
-            Console.WriteLine(Environment.NewLine);
-        }
-
-        return allSucceeded;
-    }
-
     private bool Run(string[] args)
     {
         var parsedCommandRes = argParser.Parse(args);
@@ -114,5 +72,73 @@ public class AppWorker : BackgroundService
         }
 
         return parsedCommandRes.Value.Handle();
+    }
+
+    private async Task<bool> RunBatchAsync()
+    {
+        bool allSucceeded = true;
+        IEnumerable<string> lines;
+
+        if (consoleArgs.args.Length < 2)
+        {
+            await Console.Error.WriteLineAsync("Usage: batch <filepath|->");
+            return false;
+        }
+
+        var source = consoleArgs.args[1];
+        bool isStdin = source == "-";
+
+        if (isStdin)
+        {
+            lines = ReadStdinLines();
+        }
+        else
+        {
+            lines = await ReadFileLines(source);
+            if (!lines.Any())
+            {
+                return false;
+            }
+        }
+
+        foreach (var line in lines)
+        {
+            if (!ExecuteLine(line))
+            {
+                allSucceeded = false;
+                await Console.Error.WriteLineAsync($"Invocation failed: {line.Trim()}");
+            }
+            Console.WriteLine(Environment.NewLine);
+        }
+
+        return allSucceeded;
+    }
+
+    private bool ExecuteLine(string line)
+    {
+        var lineArgs = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return Run(lineArgs);
+    }
+
+    private static async Task<IEnumerable<string>> ReadFileLines(string source)
+    {
+        IEnumerable<string> readLines;
+        try
+        {
+            readLines = await File.ReadAllLinesAsync(source);
+        }
+        catch (IOException)
+        {
+            await Console.Error.WriteLineAsync($"The file: {source} does not exist");
+            return [];
+        }
+
+        return readLines.Where(l => !string.IsNullOrWhiteSpace(l));
+    }
+
+    private IEnumerable<string> ReadStdinLines()
+    {
+        var afterBatchArgs = string.Join(" ", consoleArgs.args.Skip(2));
+        return afterBatchArgs.Split(StdinDelimiter, StringSplitOptions.RemoveEmptyEntries);
     }
 }
