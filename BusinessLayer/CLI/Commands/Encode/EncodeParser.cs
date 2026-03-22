@@ -56,15 +56,6 @@ namespace BusinessLayer.CLI.Commands.Encode
                         formatProvided = true;
                         break;
 
-                    //case "--batch":  // #TODO: implement batch input (so far only placeholder)
-                    // encode --batch encode-batch.txt
-                    /*
-                     * encode --batch -
-                        (stdin:)
-                        --entropy 00000000000000000000000000000000 --format hex
-                        --entropy 11111111111111111111111111111111 --format hex
-                     */
-
                     default:
                         return Result.Fail<ICliCommand>(
                             $"Unrecognized option '{args[i]}' for 'encode'."
