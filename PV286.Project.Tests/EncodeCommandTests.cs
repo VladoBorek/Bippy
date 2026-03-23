@@ -1,7 +1,4 @@
-using System;
-using System.IO;
 using Moq;
-using NUnit.Framework;
 using BusinessLayer.CLI.Commands.Encode;
 using BusinessLayer.CLI.Utils.Enums;
 using BusinessLayer.Services.Interfaces;
@@ -9,17 +6,17 @@ using BusinessLayer.DTOs;
 using NBitcoin;
 using ResultPattern;
 
-namespace PV286.Project.Tests.CLI.Commands
+namespace PV286.Project.Tests
 {
     [TestFixture]
     public class EncodeCommandTests
     {
-        private Mock<ICommandService> commandServiceMock = null!;
+        private Mock<ICommandService> _commandServiceMock = null!;
 
         [SetUp]
         public void Setup()
         {
-            commandServiceMock = new Mock<ICommandService>(MockBehavior.Strict);
+            _commandServiceMock = new Mock<ICommandService>(MockBehavior.Strict);
         }
 
         // -------------------------------------------------------
@@ -38,11 +35,11 @@ namespace PV286.Project.Tests.CLI.Commands
                 Format = format
             };
 
-            commandServiceMock
+            _commandServiceMock
                 .Setup(s => s.Encode(entropy, format))
                 .Returns(Result.Ok(dto));
 
-            var sut = new EncodeCommand(entropy, format, commandServiceMock.Object);
+            var encodeCommand = new EncodeCommand(entropy, format, _commandServiceMock.Object);
 
             using var outWriter = new StringWriter();
             var origOut = Console.Out;
@@ -50,14 +47,14 @@ namespace PV286.Project.Tests.CLI.Commands
 
             try
             {
-                var ok = sut.Handle();
+                var ok = encodeCommand.Handle();
 
                 Assert.That(ok, Is.True);
 
                 string printed = outWriter.ToString();
                 Assert.That(printed, Contains.Substring(dto.ToString()));
 
-                commandServiceMock.Verify(
+                _commandServiceMock.Verify(
                     s => s.Encode(entropy, format),
                     Times.Once
                 );
@@ -77,11 +74,11 @@ namespace PV286.Project.Tests.CLI.Commands
             var entropy = new byte[] { 0xFF };
             var format = ValueFormat.Bin;
 
-            commandServiceMock
+            _commandServiceMock
                 .Setup(s => s.Encode(entropy, format))
                 .Returns(Result.Fail<EncodeDTO>("Something went wrong"));
 
-            var sut = new EncodeCommand(entropy, format, commandServiceMock.Object);
+            var encodeCommand = new EncodeCommand(entropy, format, _commandServiceMock.Object);
 
             using var errWriter = new StringWriter();
             var origErr = Console.Error;
@@ -89,14 +86,14 @@ namespace PV286.Project.Tests.CLI.Commands
 
             try
             {
-                var ok = sut.Handle();
+                var ok = encodeCommand.Handle();
 
                 Assert.That(ok, Is.False);
 
                 string printed = errWriter.ToString();
                 Assert.That(printed, Contains.Substring("Something went wrong"));
 
-                commandServiceMock.Verify(
+                _commandServiceMock.Verify(
                     s => s.Encode(entropy, format),
                     Times.Once
                 );
@@ -114,10 +111,10 @@ namespace PV286.Project.Tests.CLI.Commands
         public void Constructor_SetsProperties()
         {
             var entropy = new byte[] { 0x11, 0x22 };
-            var sut = new EncodeCommand(entropy, ValueFormat.Hex, commandServiceMock.Object);
+            var encodeCommand = new EncodeCommand(entropy, ValueFormat.Hex, _commandServiceMock.Object);
 
-            Assert.That(sut.Entropy, Is.EqualTo(entropy));
-            Assert.That(sut.Format, Is.EqualTo(ValueFormat.Hex));
+            Assert.That(encodeCommand.Entropy, Is.EqualTo(entropy));
+            Assert.That(encodeCommand.Format, Is.EqualTo(ValueFormat.Hex));
         }
     }
 }

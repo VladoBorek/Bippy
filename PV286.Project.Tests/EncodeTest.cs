@@ -1,6 +1,3 @@
-using System;
-using System.Linq;
-using NUnit.Framework;
 using BusinessLayer.DTOs;
 using BusinessLayer.CLI.Utils.Enums;
 using NBitcoin;
@@ -8,7 +5,7 @@ using NBitcoin;
 namespace PV286.Project.Tests
 {
     [TestFixture]
-    public class EncodeDTOTests
+    public class EncodeDTests
     {
         private const string ExampleMnemonic =
             "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";

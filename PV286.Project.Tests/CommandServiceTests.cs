@@ -1,9 +1,6 @@
-using NUnit.Framework;
 using BusinessLayer.Services;
 using BusinessLayer.CLI.Utils.Enums;
-using BusinessLayer.DTOs;
 using NBitcoin;
-using ResultPattern;
 
 namespace PV286.Project.Tests
 {
@@ -17,12 +14,12 @@ namespace PV286.Project.Tests
         public void Encode_WithProvidedEntropy_ReturnsExpectedMnemonicAndSeed()
         {
             // Arrange
-            var svc = new CommandService();
+            var commandService = new CommandService();
             var entropy = new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
                                        0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F };
             const ValueFormat format = ValueFormat.Hex;
 
-            var result = svc.Encode(entropy, format);
+            var result = commandService.Encode(entropy, format);
 
             Assert.That(result.IsSuccess, Is.True, result.Error);
 
@@ -44,9 +41,9 @@ namespace PV286.Project.Tests
         [Test]
         public void Encode_NullEntropy_GeneratesRandomEntropyOfCorrectLength()
         {
-            var svc = new CommandService();
+            var commandService = new CommandService();
 
-            var result = svc.Encode(null, ValueFormat.Hex);
+            var result = commandService.Encode(null, ValueFormat.Hex);
 
             Assert.That(result.IsSuccess, Is.True, result.Error);
 
@@ -72,12 +69,12 @@ namespace PV286.Project.Tests
         [TestCase(ValueFormat.Bin)]
         public void Encode_PreservesFormat(ValueFormat format)
         {
-            var svc = new CommandService();
+            var commandService = new CommandService();
 
-            var result = svc.Encode(null, format);
+            var result = commandService.Encode(null, format);
 
             Assert.That(result.IsSuccess, Is.True, result.Error);
-            Assert.That(result.Value!.Format, Is.EqualTo(format));
+            Assert.That(result.Value.Format, Is.EqualTo(format));
         }
 
         // -------------------------------------------------------
@@ -86,13 +83,13 @@ namespace PV286.Project.Tests
         [Test]
         public void Encode_SeedMatchesDerivedSeed()
         {
-            var svc = new CommandService();
+            var commandService = new CommandService();
             var entropy = RandomUtils.GetBytes(32);
 
-            var result = svc.Encode(entropy, ValueFormat.Hex);
+            var result = commandService.Encode(entropy, ValueFormat.Hex);
             Assert.That(result.IsSuccess, Is.True);
 
-            var dto = result.Value!;
+            var dto = result.Value;
             var rederived = dto.Mnemonic.DeriveSeed();
 
             Assert.That(dto.Seed, Is.EqualTo(rederived));

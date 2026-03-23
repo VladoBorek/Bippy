@@ -1,7 +1,6 @@
-using NUnit.Framework;
 using BusinessLayer.CLI.Validators;
 
-namespace PV286.Project.Tests.Validators;
+namespace PV286.Project.Tests;
 
 [TestFixture]
 public class ValidatorUtilsTests

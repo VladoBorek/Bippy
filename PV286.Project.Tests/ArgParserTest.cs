@@ -1,13 +1,10 @@
-using System;
-using System.Linq;
 using Moq;
-using NUnit.Framework;
 using BusinessLayer.CLI.Parser;
 using BusinessLayer.CLI.Commands;
 using BusinessLayer.CLI.Commands.Help;
 using ResultPattern;
 
-namespace PV286.Project.Tests.CLI.Parser
+namespace PV286.Project.Tests
 {
     [TestFixture]
     public class ArgParserTests
@@ -18,9 +15,9 @@ namespace PV286.Project.Tests.CLI.Parser
         [Test]
         public void Parse_NoArgs_ReturnsHelpCommand()
         {
-            var sut = new ArgParser(Enumerable.Empty<ICliParser>());
+            var argParser = new ArgParser(Enumerable.Empty<ICliParser>());
 
-            var result = sut.Parse(Array.Empty<string>());
+            var result = argParser.Parse(Array.Empty<string>());
 
             Assert.That(result.IsSuccess, Is.True, result.Error);
             Assert.That(result.Value, Is.InstanceOf<HelpCommand>());
@@ -32,9 +29,9 @@ namespace PV286.Project.Tests.CLI.Parser
         [TestCase("--help")]
         public void Parse_HelpFlag_ReturnsHelpCommand(string flag)
         {
-            var sut = new ArgParser(Enumerable.Empty<ICliParser>());
+            var argParser = new ArgParser(Enumerable.Empty<ICliParser>());
 
-            var result = sut.Parse(new[] { flag });
+            var result = argParser.Parse(new[] { flag });
 
             Assert.That(result.IsSuccess, Is.True, result.Error);
             Assert.That(result.Value, Is.InstanceOf<HelpCommand>());
@@ -46,9 +43,9 @@ namespace PV286.Project.Tests.CLI.Parser
         [Test]
         public void Parse_UnknownCommand_ReturnsFailWithExactMessage()
         {
-            var sut = new ArgParser(Enumerable.Empty<ICliParser>());
+            var argParser = new ArgParser(Enumerable.Empty<ICliParser>());
 
-            var result = sut.Parse(new[] { "does-not-exist" });
+            var result = argParser.Parse(new[] { "does-not-exist" });
 
             Assert.That(result.IsFailed, Is.True);
             Assert.That(result.Error, Is.EqualTo("Unrecognized command 'does-not-exist'."));
@@ -74,7 +71,7 @@ namespace PV286.Project.Tests.CLI.Parser
             encodeParser
                 .Setup(p => p.Parse(It.IsAny<string[]>()))
                 .Callback((string[] a) => received = a)
-                .Returns(() => Result.Ok<ICliCommand>(cmdMock.Object));
+                .Returns(() => Result.Ok(cmdMock.Object));
 
             // another parser that must NOT be called
             var otherParser = new Mock<ICliParser>();
@@ -83,10 +80,10 @@ namespace PV286.Project.Tests.CLI.Parser
                 .Setup(p => p.Parse(It.IsAny<string[]>()))
                 .Returns(Result.Fail<ICliCommand>("should not be called"));
 
-            var sut = new ArgParser(new[] { otherParser.Object, encodeParser.Object });
+            var argParser = new ArgParser(new[] { otherParser.Object, encodeParser.Object });
             var input = new[] { "encode", "--format", "hex", "--entropy", "A1B2" };
 
-            var result = sut.Parse(input);
+            var result = argParser.Parse(input);
 
             Assert.That(result.IsSuccess, Is.True, result.Error);
             Assert.That(result.Value, Is.SameAs(cmdMock.Object));
@@ -112,9 +109,9 @@ namespace PV286.Project.Tests.CLI.Parser
                 .Setup(p => p.Parse(It.IsAny<string[]>()))
                 .Returns(Result.Fail<ICliCommand>("encode parse failed"));
 
-            var sut = new ArgParser(new[] { encodeParser.Object });
+            var argParser = new ArgParser(new[] { encodeParser.Object });
 
-            var result = sut.Parse(new[] { "encode", "--bad", "value" });
+            var result = argParser.Parse(new[] { "encode", "--bad", "value" });
 
             Assert.That(result.IsFailed, Is.True);
             Assert.That(result.Error, Is.EqualTo("encode parse failed"));

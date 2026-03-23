@@ -1,22 +1,11 @@
-using System;
 using System.Diagnostics;
-using System.IO;
 using System.Text;
-using NUnit.Framework;
 
 namespace PV286.Project.Tests
 {
     [TestFixture]
     public class IntegrationTests
     {
-        // Computes the absolute path to the app project folder from the test assembly base dir.
-        private static readonly string ProjectPath =
-            Path.GetFullPath(Path.Combine(
-                AppContext.BaseDirectory,  
-                "..", "..", "..", "..",  
-                "PV286-project"           
-            ));
-
         private static (int code, string stdout, string stderr) Run(params string[] args)
         {
             // Path to compiled DLL

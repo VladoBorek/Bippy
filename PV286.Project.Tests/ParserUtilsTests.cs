@@ -1,4 +1,3 @@
-using NUnit.Framework;
 using BusinessLayer.CLI.Utils;
 using BusinessLayer.CLI.Utils.Enums;
 

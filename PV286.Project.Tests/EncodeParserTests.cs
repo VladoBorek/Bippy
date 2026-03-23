@@ -1,24 +1,19 @@
-using System;
-using System.Linq;
 using Moq;
-using NUnit.Framework;
-using BusinessLayer.CLI.Commands;
 using BusinessLayer.CLI.Commands.Encode;
-using BusinessLayer.CLI.Parser;
 using BusinessLayer.CLI.Utils.Enums;
 using BusinessLayer.Services.Interfaces;
 
-namespace PV286.Project.Tests.CLI.Parser
+namespace PV286.Project.Tests
 {
     [TestFixture]
     public class EncodeParserTests
     {
-        private Mock<ICommandService> commandServiceMock = null!;
+        private Mock<ICommandService> _commandServiceMock = null!;
 
         [SetUp]
         public void SetUp()
         {
-            commandServiceMock = new Mock<ICommandService>(MockBehavior.Strict);
+            _commandServiceMock = new Mock<ICommandService>(MockBehavior.Strict);
         }
 
         // -------------------------------------------------------
@@ -27,14 +22,14 @@ namespace PV286.Project.Tests.CLI.Parser
         [Test]
         public void Parse_NoArgs_ReturnsEncodeCommand_WithDefaultHex_AndNullEntropy()
         {
-            var sut = new EncodeParser(commandServiceMock.Object);
+            var encodeParser = new EncodeParser(_commandServiceMock.Object);
 
-            var result = sut.Parse(Array.Empty<string>());
+            var result = encodeParser.Parse(Array.Empty<string>());
 
             Assert.That(result.IsSuccess, Is.True, result.Error);
             Assert.That(result.Value, Is.InstanceOf<EncodeCommand>());
 
-            var cmd = (EncodeCommand)result.Value!;
+            var cmd = (EncodeCommand)result.Value;
             Assert.That(cmd.Format, Is.EqualTo(ValueFormat.Hex));
             Assert.That(cmd.Entropy, Is.Null);
         }
@@ -45,9 +40,9 @@ namespace PV286.Project.Tests.CLI.Parser
         [Test]
         public void Parse_UnknownOption_ReturnsFail_WithExactMessage()
         {
-            var sut = new EncodeParser(commandServiceMock.Object);
+            var encodeParser = new EncodeParser(_commandServiceMock.Object);
 
-            var result = sut.Parse(new[] { "--unknown" });
+            var result = encodeParser.Parse(new[] { "--unknown" });
 
             Assert.That(result.IsFailed, Is.True);
             Assert.That(result.Error, Is.EqualTo("Unrecognized option '--unknown' for 'encode'."));
@@ -59,9 +54,9 @@ namespace PV286.Project.Tests.CLI.Parser
         [Test]
         public void Parse_EntropyMissingValue_ReturnsFail_WithExactMessage()
         {
-            var sut = new EncodeParser(commandServiceMock.Object);
+            var encodeParser = new EncodeParser(_commandServiceMock.Object);
 
-            var result = sut.Parse(new[] { "--entropy" });
+            var result = encodeParser.Parse(new[] { "--entropy" });
 
             Assert.That(result.IsFailed, Is.True);
             Assert.That(result.Error, Is.EqualTo("Missing value for '--entropy'."));
@@ -75,9 +70,9 @@ namespace PV286.Project.Tests.CLI.Parser
         {
             // valid 32-hex-char value so only "format missing" rule triggers
             const string validHex32 = "00112233445566778899AABBCCDDEEFF";
-            var sut = new EncodeParser(commandServiceMock.Object);
+            var encodeParser = new EncodeParser(_commandServiceMock.Object);
 
-            var result = sut.Parse(new[] { "--entropy", validHex32 });
+            var result = encodeParser.Parse(new[] { "--entropy", validHex32 });
 
             Assert.That(result.IsFailed, Is.True);
             Assert.That(
@@ -95,9 +90,9 @@ namespace PV286.Project.Tests.CLI.Parser
             const string hex = "00112233445566778899AABBCCDDEEFF"; // 32 chars
             var expectedBytes = Convert.FromHexString(hex);
 
-            var sut = new EncodeParser(commandServiceMock.Object);
+            var encodeParser = new EncodeParser(_commandServiceMock.Object);
 
-            var result = sut.Parse(new[] { "--entropy", hex, "--format", "hex" });
+            var result = encodeParser.Parse(new[] { "--entropy", hex, "--format", "hex" });
 
             Assert.That(result.IsSuccess, Is.True, result.Error);
             var cmd = result.Value as EncodeCommand;
@@ -117,9 +112,9 @@ namespace PV286.Project.Tests.CLI.Parser
             var bin128 = new string('0', 128);
             var expected = Enumerable.Repeat((byte)0x00, 16).ToArray();
 
-            var sut = new EncodeParser(commandServiceMock.Object);
+            var encodeParser = new EncodeParser(_commandServiceMock.Object);
 
-            var result = sut.Parse(new[] { "--entropy", bin128, "--format", "bin" });
+            var result = encodeParser.Parse(new[] { "--entropy", bin128, "--format", "bin" });
 
             Assert.That(result.IsSuccess, Is.True, result.Error);
             var cmd = result.Value as EncodeCommand;
@@ -137,9 +132,9 @@ namespace PV286.Project.Tests.CLI.Parser
         [TestCase("Hex")]
         public void Parse_FormatInvalidCase_ReturnsFail_WithExactMessage(string badFormat)
         {
-            var sut = new EncodeParser(commandServiceMock.Object);
+            var encodeParser = new EncodeParser(_commandServiceMock.Object);
 
-            var result = sut.Parse(new[] { "--format", badFormat });
+            var result = encodeParser.Parse(new[] { "--format", badFormat });
 
             Assert.That(result.IsFailed, Is.True);
             Assert.That(result.Error, Is.EqualTo("Format must be 'hex' or 'bin'."));
