@@ -9,6 +9,8 @@ namespace PV286_project;
 // The host calls StartAsync → ExecuteAsync. When ExecuteAsync returns, the host shuts down.
 public class AppWorker : BackgroundService
 {
+    private const string StdinDelimiter = "|";
+
     private readonly ILogger<AppWorker> logger;
     private readonly IHostApplicationLifetime lifetime;
     private readonly ConsoleArgs consoleArgs;
@@ -27,31 +29,26 @@ public class AppWorker : BackgroundService
         this.argParser = argParser;
     }
 
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         try
         {
-            var parsedCommandRes = argParser.Parse(consoleArgs.args);
-            if (parsedCommandRes.IsFailed)
+            var isBatch = consoleArgs.args.Length > 0 && consoleArgs.args[0] == "batch";
+            bool success;
+
+            if (!isBatch)
             {
-                Console.Error.WriteLine(parsedCommandRes.Error);
-                Environment.Exit(1);
-                return Task.CompletedTask;
+                success = Run(consoleArgs.args);
+            }
+            else
+            {
+                success = await RunBatchAsync();
             }
 
-            var handledCommandRes = parsedCommandRes.Value.Handle();
-            if (!handledCommandRes)
-            {
-                Environment.Exit(1);
-                return Task.CompletedTask;
-            }
-
-            Environment.Exit(0);
-            return Task.CompletedTask;
+            Environment.ExitCode = success ? 0 : 1;
         }
         catch (OperationCanceledException)
         {
-            // Graceful shutdown via Ctrl+C — not an error
             logger.LogWarning("Application was cancelled");
         }
         catch (Exception ex)
@@ -61,10 +58,87 @@ public class AppWorker : BackgroundService
         }
         finally
         {
-            // Signal the host to stop after work is done
             lifetime.StopApplication();
         }
+    }
 
-        return Task.CompletedTask;
+    private bool Run(string[] args)
+    {
+        var parsedCommandRes = argParser.Parse(args);
+        if (parsedCommandRes.IsFailed)
+        {
+            Console.Error.WriteLine(parsedCommandRes.Error);
+            return false;
+        }
+
+        return parsedCommandRes.Value.Handle();
+    }
+
+    private async Task<bool> RunBatchAsync()
+    {
+        bool allSucceeded = true;
+        IEnumerable<string> lines;
+
+        if (consoleArgs.args.Length < 2)
+        {
+            await Console.Error.WriteLineAsync("Usage: batch <filepath|->");
+            return false;
+        }
+
+        var source = consoleArgs.args[1];
+        bool isStdin = source == "-";
+
+        if (isStdin)
+        {
+            lines = ReadStdinLines();
+        }
+        else
+        {
+            lines = await ReadFileLines(source);
+            if (!lines.Any())
+            {
+                return false;
+            }
+        }
+
+        foreach (var line in lines)
+        {
+            if (!ExecuteLine(line))
+            {
+                allSucceeded = false;
+                await Console.Error.WriteLineAsync($"Invocation failed: {line.Trim()}");
+            }
+            Console.WriteLine(Environment.NewLine);
+        }
+
+        return allSucceeded;
+    }
+
+    private bool ExecuteLine(string line)
+    {
+        var lineArgs = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return Run(lineArgs);
+    }
+
+    private static async Task<IEnumerable<string>> ReadFileLines(string source)
+    {
+        IEnumerable<string> readLines;
+        try
+        {
+            readLines = await File.ReadAllLinesAsync(source);
+        }
+        catch (IOException)
+        {
+            await Console.Error.WriteLineAsync($"The file: {source} does not exist");
+            return [];
+        }
+
+        return readLines.Where(l => !string.IsNullOrWhiteSpace(l));
+    }
+
+    private IEnumerable<string> ReadStdinLines()
+    {
+        var afterBatchArgs = string.Join(" ", consoleArgs.args.Skip(2));
+        return afterBatchArgs.Split(StdinDelimiter, StringSplitOptions.RemoveEmptyEntries);
     }
 }

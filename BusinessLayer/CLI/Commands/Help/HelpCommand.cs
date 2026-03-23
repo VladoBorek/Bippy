@@ -1,4 +1,4 @@
-﻿namespace BusinessLayer.CLI.Commands.Help
+namespace BusinessLayer.CLI.Commands.Help
 {
     public class HelpCommand : ICliCommand
     {
@@ -13,6 +13,7 @@
 
                 Usage:
                   dotnet run -- encode [--entropy <value> --format <hex|bin>]
+                  dotnet run -- batch <filepath|-> [commands...]
                   dotnet run -- --help
 
                 Options:
@@ -20,13 +21,19 @@
                   --format <hex|bin>   Format of the provided entropy.
                   --help               Show this help message.
 
+                Batch Mode:
+                  batch <filepath>       Execute a batch of commands from a text file.
+                  batch - ""... | ...""    Execute an inline batch of commands separated by '|'.
+
                 Notes:
                   If '--entropy' is omitted, random entropy is generated automatically.
                   Supported entropy formats are hexadecimal and binary.
 
                 Examples:
                   dotnet run -- encode
-                  dotnet run -- encode --entropy 7ab32212dc82f67d9f38e254a6fd02c730b530f9f5e67d3c6bbdb62efb2a127 --format hex"
+                  dotnet run -- encode --entropy 78ba6f96c8a70f71c4acff1c9dc7b35d8988734180d9502eeada775b7cca103e --format hex
+                  dotnet run -- batch ""C:\batch.txt""
+                  dotnet run -- batch - ""encode --format bin | encode"""
             );
 
             return true;
