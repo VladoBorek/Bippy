@@ -1,0 +1,69 @@
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Text;
+using NUnit.Framework;
+
+namespace PV286.Project.Tests
+{
+    [TestFixture]
+    public class IntegrationTests
+    {
+        // Computes the absolute path to the app project folder from the test assembly base dir.
+        private static readonly string ProjectPath =
+            Path.GetFullPath(Path.Combine(
+                AppContext.BaseDirectory,  
+                "..", "..", "..", "..",  
+                "PV286-project"           
+            ));
+
+        private static (int code, string stdout, string stderr) Run(params string[] args)
+        {
+            var psi = new ProcessStartInfo
+            {
+                FileName = "dotnet",
+                Arguments = $"run --project \"{ProjectPath}\" -- {string.Join(" ", args)}",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                StandardOutputEncoding = Encoding.UTF8,
+                StandardErrorEncoding = Encoding.UTF8
+            };
+
+            using var p = Process.Start(psi)!;
+            var stdout = p.StandardOutput.ReadToEnd();
+            var stderr = p.StandardError.ReadToEnd();
+            p.WaitForExit();
+            return (p.ExitCode, stdout, stderr);
+        }
+
+        [Test]
+        public void Help_PrintsUsage_ExitCodeZero()
+        {
+            var (code, @out, err) = Run("--help");
+
+            Assert.That(code, Is.EqualTo(0), err);
+            Assert.That(@out + err, Does.Contain("Usage").IgnoreCase);
+        }
+
+        [Test]
+        public void Encode_WithHexEntropy_ProducesMnemonicAndSeed()
+        {
+            const string hex32 = "00112233445566778899AABBCCDDEEFF"; // 32 chars
+            var (code, @out, err) = Run("encode", "--entropy", hex32, "--format", "hex");
+
+            Assert.That(code, Is.EqualTo(0), err);
+            Assert.That(@out, Does.Contain("Mnemonic : "));
+            Assert.That(@out, Does.Contain("Seed     : "));
+        }
+
+        [Test]
+        public void UnknownOption_Fails_NonZeroExit_WithClearMessage()
+        {
+            var (code, @out, err) = Run("encode", "--bad-flag");
+
+            Assert.That(code, Is.Not.EqualTo(0));
+            Assert.That(@out + err, Does.Contain("Unrecognized option '--bad-flag'").IgnoreCase);
+        }
+    }
+}
