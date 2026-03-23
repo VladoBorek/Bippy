@@ -2,8 +2,68 @@ using BusinessLayer.Services;
 using BusinessLayer.CLI.Utils.Enums;
 using NBitcoin;
 
+
 namespace PV286.Project.Tests
 {
+    [TestFixture]
+    public class CommandServiceMnemonicSizeTests
+    {
+        [Test]
+        public void Entropy_16Bytes_Produces12Words()
+        {
+            var svc = new CommandService();
+            var entropy = new byte[16]; // 128 bits
+            var res = svc.Encode(entropy, ValueFormat.Hex);
+
+            Assert.That(res.IsSuccess, Is.True, res.Error);
+            Assert.That(res.Value.Mnemonic.Words.Length, Is.EqualTo(12));
+        }
+
+        [Test]
+        public void Entropy_20Bytes_Produces15Words()
+        {
+            var svc = new CommandService();
+            var entropy = new byte[20]; // 160 bits
+            var res = svc.Encode(entropy, ValueFormat.Hex);
+
+            Assert.That(res.IsSuccess, Is.True, res.Error);
+            Assert.That(res.Value.Mnemonic.Words.Length, Is.EqualTo(15));
+        }
+
+        [Test]
+        public void Entropy_24Bytes_Produces18Words()
+        {
+            var svc = new CommandService();
+            var entropy = new byte[24]; // 192 bits
+            var res = svc.Encode(entropy, ValueFormat.Hex);
+
+            Assert.That(res.IsSuccess, Is.True, res.Error);
+            Assert.That(res.Value.Mnemonic.Words.Length, Is.EqualTo(18));
+        }
+
+        [Test]
+        public void Entropy_28Bytes_Produces21Words()
+        {
+            var svc = new CommandService();
+            var entropy = new byte[28]; // 224 bits
+            var res = svc.Encode(entropy, ValueFormat.Hex);
+
+            Assert.That(res.IsSuccess, Is.True, res.Error);
+            Assert.That(res.Value.Mnemonic.Words.Length, Is.EqualTo(21));
+        }
+
+        [Test]
+        public void Entropy_32Bytes_Produces24Words()
+        {
+            var svc = new CommandService();
+            var entropy = new byte[32]; // 256 bits
+            var res = svc.Encode(entropy, ValueFormat.Hex);
+
+            Assert.That(res.IsSuccess, Is.True, res.Error);
+            Assert.That(res.Value.Mnemonic.Words.Length, Is.EqualTo(24));
+        }
+    }
+
     [TestFixture]
     public class CommandServiceTests
     {
@@ -15,8 +75,11 @@ namespace PV286.Project.Tests
         {
             // Arrange
             var commandService = new CommandService();
-            var entropy = new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-                                       0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F };
+            var entropy = new byte[]
+            {
+                0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F
+            };
             const ValueFormat format = ValueFormat.Hex;
 
             var result = commandService.Encode(entropy, format);
@@ -49,18 +112,11 @@ namespace PV286.Project.Tests
 
             var dto = result.Value;
             Assert.That(dto, Is.Not.Null);
-
-            // Entropy not directly exposed, but we can infer:
-            //  - Seed comes from a mnemonic created with 32 bytes of entropy
-            //  - NBitcoin stores entropy internally; word count reflects entropy size
-            // 128 bits  (16 bytes) => 12 words
-            // 160 bits  (20 bytes) => 15 words
-            // 192 bits  (24 bytes) => 18 words
-            // 224 bits  (28 bytes) => 21 words
-            // 256 bits  (32 bytes) => 24 words
+            
             Assert.That(dto.Mnemonic.Words.Length, Is.EqualTo(24),
                 "24-word mnemonic implies 256-bit (32-byte) entropy as required.");
         }
+        // Override behavior for this test only
 
         // -------------------------------------------------------
         // 3) Output DTO contains the same format that was passed in

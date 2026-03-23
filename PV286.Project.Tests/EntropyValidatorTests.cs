@@ -35,7 +35,14 @@ public class EntropyValidatorTests
         Assert.That(result.IsFailed, Is.True);
         Assert.That(result.Error, Does.Contain("hex").IgnoreCase);
     }
+    [Test]
+    public void Hex_TooLong_ReturnsFail()
+    {
+        var hex72 = new string('A', 72); // 72 chars: divisible by 8 but > 64 → invalid
+        var result = EntropyValidator.IsValidEntropy(hex72, ValueFormat.Hex);
 
+        Assert.That(result.IsFailed, Is.True);
+    }
     // ------------------------------
     //  VALID BINARY ENTROPY TESTS
     // ------------------------------
@@ -69,4 +76,14 @@ public class EntropyValidatorTests
         Assert.That(result.IsFailed, Is.True);
         Assert.That(result.Error, Does.Contain("binary").IgnoreCase);
     }
+    
+    [Test]
+    public void Binary_TooLong_ReturnsFail()
+    {
+        var bin288 = new string('0', 288);
+        var result = EntropyValidator.IsValidEntropy(bin288, ValueFormat.Bin);
+
+        Assert.That(result.IsFailed, Is.True);
+    }
+
 }
