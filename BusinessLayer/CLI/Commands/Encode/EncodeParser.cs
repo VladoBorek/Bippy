@@ -51,7 +51,7 @@ namespace BusinessLayer.CLI.Commands.Encode
             return Result.Ok<ICliCommand>(new EncodeCommand(entropyBytes, format, commandService));
         }
 
-        private byte[]? StringEntropyToBytes(string? entropy, ValueFormat format)
+        private static byte[]? StringEntropyToBytes(string? entropy, ValueFormat format)
         {
             if (entropy is null)
                 return null;
