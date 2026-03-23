@@ -19,10 +19,21 @@ namespace PV286.Project.Tests
 
         private static (int code, string stdout, string stderr) Run(params string[] args)
         {
+            // Path to compiled DLL
+            var appDll = Path.GetFullPath(Path.Combine(
+                AppContext.BaseDirectory,
+                "..", "..", "..", "..",
+                "PV286-project",
+                "bin",
+                "Release",
+                "net9.0",
+                "PV286-project.dll"
+            ));
+
             var psi = new ProcessStartInfo
             {
                 FileName = "dotnet",
-                Arguments = $"run --project \"{ProjectPath}\" -- {string.Join(" ", args)}",
+                Arguments = $"\"{appDll}\" {string.Join(" ", args)}",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
@@ -34,6 +45,7 @@ namespace PV286.Project.Tests
             var stdout = p.StandardOutput.ReadToEnd();
             var stderr = p.StandardError.ReadToEnd();
             p.WaitForExit();
+
             return (p.ExitCode, stdout, stderr);
         }
 
