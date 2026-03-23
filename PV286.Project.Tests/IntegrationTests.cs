@@ -1,5 +1,3 @@
-// File: PV286.Project.Tests/Integration/AppWorkerIntegrationTests.cs
-
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
