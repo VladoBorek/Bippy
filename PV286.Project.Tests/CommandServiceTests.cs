@@ -116,7 +116,6 @@ namespace PV286.Project.Tests
             Assert.That(dto.Mnemonic.Words.Length, Is.EqualTo(24),
                 "24-word mnemonic implies 256-bit (32-byte) entropy as required.");
         }
-        // Override behavior for this test only
 
         // -------------------------------------------------------
         // 3) Output DTO contains the same format that was passed in

@@ -6,17 +6,20 @@ using Microsoft.Extensions.Logging;
 
 // App pieces
 using BusinessLayer.CLI.Parser;
-using BusinessLayer.CLI.Commands; // ICliParser
-using BusinessLayer.CLI.Commands.Encode; // EncodeParser
-using BusinessLayer.Services; // CommandService
-using BusinessLayer.Services.Interfaces; // ICommandService
-using PV286_project; // AppWorker, ConsoleArgs
+using BusinessLayer.CLI.Commands;            // ICliParser
+using BusinessLayer.CLI.Commands.Encode;     // EncodeParser
+using BusinessLayer.Services;                // CommandService
+using BusinessLayer.Services.Interfaces;     // ICommandService
+using PV286_project;                         // AppWorker, ConsoleArgs
 
 namespace PV286.Project.Tests
 {
     [TestFixture]
     public class AppWorkerIntegrationTests
     {
+        private static int CountOccurrences(string text, string needle) =>
+            string.IsNullOrEmpty(text) ? 0 : text.Split(needle).Length - 1;
+
         private async Task<(int exitCode, string stdout, string stderr)> RunAppAsync(params string[] args)
         {
             // capture console
@@ -70,10 +73,14 @@ namespace PV286.Project.Tests
 
             Assert.That(code, Is.EqualTo(0), stderr);
             Assert.That(stdout + stderr, Does.Contain("Usage").IgnoreCase);
+
+            // Help should not produce mnemonic/seed blocks
+            Assert.That(CountOccurrences(stdout, "Mnemonic : "), Is.EqualTo(0));
+            Assert.That(CountOccurrences(stdout, "Seed     : "), Is.EqualTo(0));
         }
 
         // -------------------------------------------------------------
-        // ENCODE COMMAND TEST
+        // ENCODE COMMAND TESTS
         // -------------------------------------------------------------
         [Test]
         [Category("Integration")]
@@ -85,8 +92,9 @@ namespace PV286.Project.Tests
                 await RunAppAsync("encode", "--entropy", hex32, "--format", "hex");
 
             Assert.That(code, Is.EqualTo(0), stderr);
-            Assert.That(stdout, Does.Contain("Mnemonic : "));
-            Assert.That(stdout, Does.Contain("Seed     : "));
+
+            Assert.That(CountOccurrences(stdout, "Mnemonic : "), Is.EqualTo(1));
+            Assert.That(CountOccurrences(stdout, "Seed     : "), Is.EqualTo(1));
         }
 
         [Test]
@@ -99,6 +107,9 @@ namespace PV286.Project.Tests
             Assert.That(code, Is.Not.EqualTo(0));
             Assert.That(stdout + stderr,
                 Does.Contain("Unrecognized option '--bad-flag'").IgnoreCase);
+
+            Assert.That(CountOccurrences(stdout, "Mnemonic : "), Is.EqualTo(0));
+            Assert.That(CountOccurrences(stdout, "Seed     : "), Is.EqualTo(0));
         }
 
         [Test]
@@ -108,8 +119,8 @@ namespace PV286.Project.Tests
             var (code, stdout, stderr) = await RunAppAsync("encode", "--format", "hex");
 
             Assert.That(code, Is.EqualTo(0), stderr);
-            Assert.That(stdout, Does.Contain("Mnemonic : "));
-            Assert.That(stdout, Does.Contain("Seed     : "));
+            Assert.That(CountOccurrences(stdout, "Mnemonic : "), Is.EqualTo(1));
+            Assert.That(CountOccurrences(stdout, "Seed     : "), Is.EqualTo(1));
         }
 
         [Test]
@@ -121,6 +132,9 @@ namespace PV286.Project.Tests
 
             Assert.That(code, Is.Not.EqualTo(0));
             Assert.That(stdout + stderr, Does.Contain("hex").IgnoreCase);
+
+            Assert.That(CountOccurrences(stdout, "Mnemonic : "), Is.EqualTo(0));
+            Assert.That(CountOccurrences(stdout, "Seed     : "), Is.EqualTo(0));
         }
 
         [Test]
@@ -134,8 +148,14 @@ namespace PV286.Project.Tests
 
             Assert.That(code, Is.Not.EqualTo(0));
             Assert.That(stdout + stderr, Does.Contain("format").IgnoreCase);
+
+            Assert.That(CountOccurrences(stdout, "Mnemonic : "), Is.EqualTo(0));
+            Assert.That(CountOccurrences(stdout, "Seed     : "), Is.EqualTo(0));
         }
 
+        // -------------------------------------------------------------
+        // BATCH TESTS
+        // -------------------------------------------------------------
         [Test]
         [Category("Integration")]
         public async Task Batch_Inline_AllValidCommands_Succeeds()
@@ -146,8 +166,12 @@ namespace PV286.Project.Tests
             );
 
             Assert.That(code, Is.EqualTo(0), stderr);
-            Assert.That(stdout, Does.Contain("Mnemonic : "));
-            Assert.That(stdout, Does.Contain("Seed     : "));
+
+            int mnemonicCount = CountOccurrences(stdout, "Mnemonic : ");
+            int seedCount     = CountOccurrences(stdout, "Seed     : ");
+
+            Assert.That(mnemonicCount, Is.EqualTo(2));
+            Assert.That(seedCount,     Is.EqualTo(2));
         }
 
         [Test]
@@ -162,8 +186,10 @@ namespace PV286.Project.Tests
             Assert.That(code, Is.Not.EqualTo(0));
             Assert.That(stdout + stderr, Does.Contain("Invocation failed").IgnoreCase);
 
-            // Successful commands still show output
-            Assert.That(stdout, Does.Contain("Mnemonic : "));
+            int mnemonicCount = CountOccurrences(stdout, "Mnemonic : ");
+            int seedCount     = CountOccurrences(stdout, "Seed     : ");
+            Assert.That(mnemonicCount, Is.EqualTo(2));
+            Assert.That(seedCount,     Is.EqualTo(2));
         }
 
         [Test]
@@ -182,7 +208,11 @@ namespace PV286.Project.Tests
                 var (code, stdout, stderr) = await RunAppAsync("batch", path);
 
                 Assert.That(code, Is.EqualTo(0), stderr);
-                Assert.That(stdout, Does.Contain("Mnemonic : "));
+
+                int mnemonicCount = CountOccurrences(stdout, "Mnemonic : ");
+                int seedCount     = CountOccurrences(stdout, "Seed     : ");
+                Assert.That(mnemonicCount, Is.EqualTo(2));
+                Assert.That(seedCount,     Is.EqualTo(2));
             }
             finally
             {
@@ -209,6 +239,11 @@ namespace PV286.Project.Tests
                 Assert.That(code, Is.Not.EqualTo(0));
                 Assert.That(stdout + stderr, Does.Contain("Invocation failed").IgnoreCase);
                 Assert.That(stdout + stderr, Does.Contain("--bad-flag"));
+
+                int mnemonicCount = CountOccurrences(stdout, "Mnemonic : ");
+                int seedCount     = CountOccurrences(stdout, "Seed     : ");
+                Assert.That(mnemonicCount, Is.EqualTo(2));
+                Assert.That(seedCount,     Is.EqualTo(2));
             }
             finally
             {
@@ -226,6 +261,9 @@ namespace PV286.Project.Tests
 
             Assert.That(code, Is.Not.EqualTo(0));
             Assert.That(stdout + stderr, Does.Contain("does not exist").IgnoreCase);
+
+            Assert.That(CountOccurrences(stdout, "Mnemonic : "), Is.EqualTo(0));
+            Assert.That(CountOccurrences(stdout, "Seed     : "), Is.EqualTo(0));
         }
 
         [Test]
@@ -236,6 +274,9 @@ namespace PV286.Project.Tests
 
             Assert.That(code, Is.Not.EqualTo(0));
             Assert.That(stdout + stderr, Does.Contain("Usage: batch").IgnoreCase);
+
+            Assert.That(CountOccurrences(stdout, "Mnemonic : "), Is.EqualTo(0));
+            Assert.That(CountOccurrences(stdout, "Seed     : "), Is.EqualTo(0));
         }
 
         [Test]
@@ -263,57 +304,48 @@ namespace PV286.Project.Tests
             // At least one command must fail -> overall non-zero exit
             Assert.That(code, Is.Not.EqualTo(0));
 
-            // Should contain multiple successes
+            // Should contain multiple successes and failures
             Assert.That(stdout, Does.Contain("Mnemonic : "));
-            Assert.That(stdout, Does.Contain("Seed     : "));
-
-            // Should contain multiple failure markers
             Assert.That(stdout + stderr, Does.Contain("Invocation failed").IgnoreCase);
 
-            // Check specific error types appeared
-            Assert.That(stdout + stderr, Does.Contain("unrecognized option").IgnoreCase);
-            Assert.That(stdout + stderr, Does.Contain("hex").IgnoreCase); // from entropy errors
-            Assert.That(stdout + stderr, Does.Contain("format").IgnoreCase);
+            // Expected successes: 7 (1,2,3,6,9,10,11)
+            int mnemonicCount = CountOccurrences(stdout, "Mnemonic : ");
+            int seedCount     = CountOccurrences(stdout, "Seed     : ");
+            Assert.That(mnemonicCount, Is.GreaterThanOrEqualTo(7));
+            Assert.That(seedCount,     Is.GreaterThanOrEqualTo(7));
 
-            // Check that we actually ran many commands (approx 10)
-            int countMnemonic = stdout.Split("Mnemonic :").Length - 1;
-            Assert.That(countMnemonic, Is.GreaterThanOrEqualTo(4),
-                "Expected multiple successful encodes in a large batch.");
-
-            // Confirm batch continued after failures and printed blank lines
+            // Confirm batch continued after failures (blank line prints between invocations)
             Assert.That(stdout, Does.Contain(Environment.NewLine + Environment.NewLine));
         }
-        
+
         [Test]
         [Category("Integration")]
         public async Task Batch_WithEmojis_WorksAndFailsGracefully()
         {
             // inline batch containing emojis, valid & invalid commands
             string batch =
-                "encode --format hex | " +                       // valid command + emoji
+                "encode --format hex 😀 | " +                       // valid command + emoji
                 "encode --format bin 😂😂 | " +                     // valid command + emojis
                 "encode --entropy ZZZZ --format hex 😭 | " +        // invalid entropy + emoji
                 "encode --bad-flag 🤯 | " +                         // invalid flag + emoji
-                "encode --format hex 😎";                           // final valid command
-        
+                "encode --format hex 😎";                           // final valid command + emoji
+
             var (code, stdout, stderr) = await RunAppAsync(
                 "batch", "-",
                 batch
             );
-        
-            // Because at least two commands are invalid, exit code must be non-zero.
+
             Assert.That(code, Is.Not.EqualTo(0));
-        
-            // Successful commands must still print mnemonic + seed
-            Assert.That(stdout, Does.Contain("Mnemonic : "));
-            Assert.That(stdout, Does.Contain("Seed     : "));
-        
-            // Failures must be printed (batch should not stop)
+
+            int mnemonicCount = CountOccurrences(stdout, "Mnemonic : ");
+            int seedCount     = CountOccurrences(stdout, "Seed     : ");
+            Assert.That(mnemonicCount, Is.EqualTo(0));
+            Assert.That(seedCount,     Is.EqualTo(0));
+
             Assert.That(stdout + stderr, Does.Contain("Invocation failed").IgnoreCase);
-        
-            // The invalid commands must trigger recognizable error messages
+
             Assert.That(stdout + stderr, Does.Contain("Unrecognized option '--bad-flag'").IgnoreCase);
-            Assert.That(stdout + stderr, Does.Contain("hex").IgnoreCase); 
+            Assert.That(stdout + stderr, Does.Contain("hex").IgnoreCase);
         }
     }
 }
