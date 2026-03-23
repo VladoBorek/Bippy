@@ -10,7 +10,6 @@ namespace PV286.Project.Tests
         [Test]
         public void NoEntropy_FormatIrrelevant_ReturnsOk()
         {
-            // Arrange & Act
             var result = EncodeValidator.IsValidEncode(
                 entropy: null,
                 formatProvided: false,   
@@ -29,7 +28,6 @@ namespace PV286.Project.Tests
                 format: ValueFormat.Hex
             );
 
-            // Assert
             Assert.That(result.IsFailed, Is.True);
             Assert.That(
                 result.Error,
@@ -42,14 +40,12 @@ namespace PV286.Project.Tests
         {
             const string validHex32 = "00112233445566778899AABBCCDDEEFF";
 
-            // Act
             var result = EncodeValidator.IsValidEncode(
                 entropy: validHex32,
                 formatProvided: true,
                 format: ValueFormat.Hex
             );
 
-            // Assert
             Assert.That(result.IsSuccess, Is.True, result.Error);
         }
         [Test]
