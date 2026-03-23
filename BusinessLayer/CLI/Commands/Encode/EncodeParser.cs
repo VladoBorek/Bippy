@@ -25,42 +25,15 @@ namespace BusinessLayer.CLI.Commands.Encode
 
             for (int i = 0; i < args.Length; i++)
             {
-                switch (args[i])
+                var result = args[i] switch
                 {
-                    case "--entropy":
+                    "--entropy" => ParseEntropy(args, ref i, out entropy),
+                    "--format" => ParseFormat(args, ref i, out format, out formatProvided),
+                    _ => Result.Fail($"Unrecognized option '{args[i]}' for 'encode'.")
+                };
 
-                        var entropyResult = ParserUtils.GetRequiredValue(args, ref i, "--entropy");
-                        if (entropyResult.IsFailed)
-                        {
-                            return Result.Fail<ICliCommand>(entropyResult);
-                        }
-
-                        entropy = entropyResult.Value;
-                        break;
-
-                    case "--format":
-                        var FormatValueResult = ParserUtils.GetRequiredValue(
-                            args,
-                            ref i,
-                            "--format"
-                        );
-                        if (FormatValueResult.IsFailed)
-                            return Result.Fail<ICliCommand>(FormatValueResult);
-
-                        var formatResult = ParserUtils.ParseFormat(FormatValueResult.Value);
-                        if (formatResult.IsFailed)
-                        {
-                            return Result.Fail<ICliCommand>(formatResult);
-                        }
-                        format = formatResult.Value;
-                        formatProvided = true;
-                        break;
-
-                    default:
-                        return Result.Fail<ICliCommand>(
-                            $"Unrecognized option '{args[i]}' for 'encode'."
-                        );
-                }
+                if (result.IsFailed)
+                    return Result.Fail<ICliCommand>(result);
             }
 
             var encodeValidationResult = EncodeValidator.IsValidEncode(
@@ -90,5 +63,36 @@ namespace BusinessLayer.CLI.Commands.Encode
                     .Select(i => Convert.ToByte(entropy.Substring(i * 8, 8), 2))
                     .ToArray();
         }
+
+        private static Result ParseEntropy(string[] args, ref int i, out string? entropy)
+        {
+            entropy = null;
+
+            var entropyResult = ParserUtils.GetRequiredValue(args, ref i, "--entropy");
+            if (entropyResult.IsFailed)
+                return Result.Fail(entropyResult);
+
+            entropy = entropyResult.Value;
+            return Result.Ok();
+        }
+
+        private static Result ParseFormat(string[] args, ref int i, out ValueFormat format, out bool formatProvided)
+        {
+            format = ValueFormat.Hex;
+            formatProvided = false;
+
+            var FormatValueResult = ParserUtils.GetRequiredValue(args, ref i, "--format");
+            if (FormatValueResult.IsFailed)
+                return Result.Fail(FormatValueResult);
+
+            var formatResult = ParserUtils.ParseFormat(FormatValueResult.Value);
+            if (formatResult.IsFailed)
+                return Result.Fail(formatResult);
+
+            format = formatResult.Value;
+            formatProvided = true;
+            return Result.Ok();
+        }
+
     }
 }
