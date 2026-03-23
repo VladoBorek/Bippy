@@ -76,15 +76,13 @@ release_job:
       artifacts: true
     - job: publish_windows
       artifacts: true
-  release:
-    name: "Release $VERSION"
-    tag_name: "v$VERSION"
-    description: "Automatic release from merge to main"
-    assets:
-      links:
-        - name: "Bippy (Linux x64)"
-          url: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/myapp/${VERSION}/Bippy-linux-x64"
-        - name: "Bippy (Windows x64)"
-          url: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/myapp/${VERSION}/Bippy-win-x64.exe"
+  script:
+    - |
+      release-cli create \
+        --name "Release $VERSION" \
+        --tag-name "v$VERSION" \
+        --description "Automatic release from merge to main" \
+        --assets-link "{\"name\":\"Bippy (Linux x64)\",\"url\":\"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/myapp/${VERSION}/Bippy-linux-x64\"}" \
+        --assets-link "{\"name\":\"Bippy (Windows x64)\",\"url\":\"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/myapp/${VERSION}/Bippy-win-x64.exe\"}"
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
