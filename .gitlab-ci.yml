@@ -1,27 +1,88 @@
 image: mcr.microsoft.com/dotnet/sdk:9.0
 
-
 workflow:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - when: never  
-
+    - if: $CI_COMMIT_BRANCH == "main"
+    - when: never
 
 stages:
   - build
   - test
+  - publish
+  - release
 
 build_job:
   stage: build
   tags:
-    - shared-fi       
+    - shared-fi
   script:
     - dotnet restore
     - dotnet build --configuration Release
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"
 
 test_job:
   stage: test
   tags:
-    - shared-fi        
+    - shared-fi
   script:
     - dotnet test --configuration Release
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"
+
+.publish_template: &publish_template
+  stage: publish
+  tags:
+    - shared-fi
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+
+publish_linux:
+  <<: *publish_template
+  script:
+    - dotnet publish --configuration Release --runtime linux-x64 --self-contained true --output ./publish/linux
+    - VERSION=$(date +%Y.%m.%d.%H%M)
+    - |
+      curl --header "JOB-TOKEN: $CI_JOB_TOKEN" \
+           --upload-file ./publish/linux/Bippy \
+           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/myapp/${VERSION}/Bippy-linux-x64"
+    - echo "VERSION=${VERSION}" >> version.env
+  artifacts:
+    reports:
+      dotenv: version.env
+
+publish_windows:
+  <<: *publish_template
+  script:
+    - dotnet publish --configuration Release --runtime win-x64 --self-contained true --output ./publish/windows
+    - VERSION=$(date +%Y.%m.%d.%H%M)
+    - |
+      curl --header "JOB-TOKEN: $CI_JOB_TOKEN" \
+           --upload-file ./publish/windows/Bippy.exe \
+           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/myapp/${VERSION}/Bippy-win-x64.exe"
+    - echo "VERSION=${VERSION}" >> version.env
+  artifacts:
+    reports:
+      dotenv: version.env
+
+release_job:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  needs:
+    - job: publish_linux
+      artifacts: true
+    - job: publish_windows
+      artifacts: true
+  script:
+    - |
+      release-cli create \
+        --name "Release $VERSION" \
+        --tag-name "v$VERSION" \
+        --description "Automatic release from merge to main" \
+        --assets-link "{\"name\":\"Bippy (Linux x64)\",\"url\":\"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/myapp/${VERSION}/Bippy-linux-x64\"}" \
+        --assets-link "{\"name\":\"Bippy (Windows x64)\",\"url\":\"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/myapp/${VERSION}/Bippy-win-x64.exe\"}"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
