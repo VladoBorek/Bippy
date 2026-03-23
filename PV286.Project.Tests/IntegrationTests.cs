@@ -2,13 +2,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-// App pieces
 using BusinessLayer.CLI.Parser;
-using BusinessLayer.CLI.Commands;            // ICliParser
-using BusinessLayer.CLI.Commands.Encode;     // EncodeParser
-using BusinessLayer.Services;                // CommandService
-using BusinessLayer.Services.Interfaces;     // ICommandService
-using PV286_project;                         // AppWorker, ConsoleArgs
+using BusinessLayer.CLI.Commands;           
+using BusinessLayer.CLI.Commands.Encode;     
+using BusinessLayer.Services;                
+using BusinessLayer.Services.Interfaces;     
+using PV286_project;                        
 
 namespace PV286.Project.Tests
 {
