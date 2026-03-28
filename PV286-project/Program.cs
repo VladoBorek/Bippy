@@ -1,5 +1,6 @@
 ﻿using BusinessLayer.CLI.Commands;
 using BusinessLayer.CLI.Commands.Encode;
+using BusinessLayer.CLI.Commands.Decode;
 using BusinessLayer.CLI.Commands.Help;
 using BusinessLayer.CLI.Parser;
 using BusinessLayer.Services;
@@ -41,6 +42,7 @@ namespace PV286_project
                         // Register application services
                         services.AddSingleton<ICommandService, CommandService>();
                         services.AddSingleton<ICliParser, EncodeParser>();
+                        services.AddSingleton<ICliParser, DecodeParser>();
                         services.AddSingleton<ICliParser, HelpParser>();
                         services.AddSingleton<IArgParser, ArgParser>();
 
