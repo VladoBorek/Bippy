@@ -1,7 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-
 using BusinessLayer.CLI.Parser;
 using BusinessLayer.CLI.Commands;
 using BusinessLayer.CLI.Commands.Decode;
@@ -98,14 +97,113 @@ namespace PV286.Project.Tests
             Assert.That(stdout, Does.Contain(expectedEntropyBin));
         }
 
+        // -------------------------------------------------------------
+        // INVALID INPUT TESTS
+        // -------------------------------------------------------------
+
         [Test]
         [Category("Integration")]
-        public async Task Decode_NoMnemonic_FailsGracefully()
+        public async Task Decode_InvalidWord_Fails()
         {
-            var (code, stdout, stderr) = await RunAppAsync("decode");
+            const string mnemonic =
+                "photo memory captain decline vendor heavy seminar gloom mouse economy awkward WRONGWORD";
+
+            var (code, stdout, stderr) =
+                await RunAppAsync("decode", mnemonic);
 
             Assert.That(code, Is.Not.EqualTo(0));
-            Assert.That(stdout + stderr, Does.Contain("No mnemonic").IgnoreCase);
+            Assert.That(stdout + stderr, Does.Contain("invalid").IgnoreCase
+                .Or.Contain("word").IgnoreCase);
+
+            Assert.That(CountOccurrences(stdout, "Entropy  : "), Is.EqualTo(0));
+            Assert.That(CountOccurrences(stdout, "Seed     : "), Is.EqualTo(0));
+        }
+
+        [Test]
+        [Category("Integration")]
+        public async Task Decode_BadChecksum_Fails()
+        {
+            // Identical to real mnemonic except for last word.
+            const string mnemonic =
+                "photo memory captain decline vendor heavy seminar gloom mouse economy awkward atom";
+
+            var (code, stdout, stderr) =
+                await RunAppAsync("decode", mnemonic);
+
+            Assert.That(code, Is.Not.EqualTo(0));
+            Assert.That(stdout + stderr,
+                Does.Contain("checksum").IgnoreCase
+                    .Or.Contain("invalid").IgnoreCase);
+
+            Assert.That(CountOccurrences(stdout, "Entropy  : "), Is.EqualTo(0));
+            Assert.That(CountOccurrences(stdout, "Seed     : "), Is.EqualTo(0));
+        }
+
+        [Test]
+        [Category("Integration")]
+        public async Task Decode_WrongWordCount_Fails()
+        {
+            // 11 words (must be 12/15/18/21/24)
+            const string mnemonic =
+                "photo memory captain decline vendor heavy seminar gloom mouse economy awkward";
+
+            var (code, stdout, stderr) =
+                await RunAppAsync("decode", mnemonic);
+
+            Assert.That(code, Is.Not.EqualTo(0));
+            Assert.That(stdout + stderr,
+                Does.Contain("word").IgnoreCase
+                    .Or.Contain("length").IgnoreCase);
+
+            Assert.That(CountOccurrences(stdout, "Entropy  : "), Is.EqualTo(0));
+            Assert.That(CountOccurrences(stdout, "Seed     : "), Is.EqualTo(0));
+        }
+
+        [Test]
+        [Category("Integration")]
+        public async Task Decode_EmptyString_Fails()
+        {
+            var (code, stdout, stderr) =
+                await RunAppAsync("decode", "");
+
+            Assert.That(code, Is.Not.EqualTo(0));
+            Assert.That(stdout + stderr,
+                Does.Contain("empty").IgnoreCase
+                    .Or.Contain("mnemonic").IgnoreCase
+                    .Or.Contain("no mnemonic").IgnoreCase);
+
+            Assert.That(CountOccurrences(stdout, "Entropy  : "), Is.EqualTo(0));
+            Assert.That(CountOccurrences(stdout, "Seed     : "), Is.EqualTo(0));
+        }
+
+        [Test]
+        [Category("Integration")]
+        public async Task Decode_NullArgument_Fails()
+        {
+            var (code, stdout, stderr) =
+                await RunAppAsync("decode", (string)null);
+
+            Assert.That(code, Is.Not.EqualTo(0));
+            Assert.That(stdout + stderr,
+                Does.Contain("mnemonic").IgnoreCase
+                    .Or.Contain("null").IgnoreCase);
+
+            Assert.That(CountOccurrences(stdout, "Entropy  : "), Is.EqualTo(0));
+            Assert.That(CountOccurrences(stdout, "Seed     : "), Is.EqualTo(0));
+        }
+
+        [Test]
+        [Category("Integration")]
+        public async Task Decode_ExtraGarbageArguments_Fails()
+        {
+            var (code, stdout, stderr) =
+                await RunAppAsync("decode", "photo", "garbage", "stuff");
+
+            Assert.That(code, Is.Not.EqualTo(0));
+            Assert.That(stdout + stderr,
+                Does.Contain("invalid").IgnoreCase
+                    .Or.Contain("unrecognized").IgnoreCase);
+
             Assert.That(CountOccurrences(stdout, "Entropy  : "), Is.EqualTo(0));
             Assert.That(CountOccurrences(stdout, "Seed     : "), Is.EqualTo(0));
         }

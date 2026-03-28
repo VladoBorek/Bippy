@@ -22,9 +22,7 @@ namespace BusinessLayer.CLI.Commands.Decode
 
             string? phrase = null;
             ValueFormat format = ValueFormat.Hex; 
-            bool formatProvided = false;
 
-            // Parse args for --format and phrase
             for (int i = 0; i < args.Length; i++)
             {
                 switch (args[i])
@@ -33,11 +31,9 @@ namespace BusinessLayer.CLI.Commands.Decode
                         var formatResult = ParseFormat(args, ref i, out format);
                         if (formatResult.IsFailed)
                             return Result.Fail<ICliCommand>(formatResult);
-                        formatProvided = true;
                         break;
 
                     default:
-                        // Anything else is assumed to be part of the phrase
                         phrase = (phrase == null) ? args[i] : $"{phrase} {args[i]}";
                         break;
                 }

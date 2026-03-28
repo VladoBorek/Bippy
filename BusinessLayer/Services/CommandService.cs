@@ -61,7 +61,25 @@ namespace BusinessLayer.Services
         
         public Result<DecodeDTO> Decode(string phrase, ValueFormat format)
         {
-            var mnemonic = new Mnemonic(phrase, Wordlist.English);
+            
+            Mnemonic mnemonic;
+
+            // 1. Handle invalid wordlist, unknown words, wrong length, etc.
+            try
+            {
+                mnemonic = new Mnemonic(phrase, Wordlist.English);
+            }
+            catch (Exception ex)
+            {
+                return Result.Fail<DecodeDTO>($"Invalid mnemonic: {ex.Message}");
+            }
+
+            // 2. Handle invalid checksum (wrong last word)
+            if (!mnemonic.IsValidChecksum)
+            {
+                return Result.Fail<DecodeDTO>("Invalid mnemonic checksum.");
+            }
+
             
             byte[] entropy =  GetEntropy(mnemonic);
             
