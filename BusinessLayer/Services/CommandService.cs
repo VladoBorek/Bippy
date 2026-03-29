@@ -33,7 +33,7 @@ namespace BusinessLayer.Services
         // Each encoding a number from 0-2047, serving as an index into a wordlist. 
         // Finally, we convert these numbers into words and use the joined words as a mnemonic sentence. 
         // https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki#wordlist
-        public static byte[] GetEntropy(Mnemonic mnemonic)
+        private static byte[] GetEntropy(Mnemonic mnemonic)
         {
             string[] words = mnemonic.Words;
             string[] wordlist = mnemonic.WordList.GetWords().ToArray();
