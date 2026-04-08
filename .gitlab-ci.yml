@@ -56,6 +56,8 @@ publish_windows:
 
 release_job:
   stage: release
+  tags:
+    - shared-fi
   image: registry.gitlab.com/gitlab-org/release-cli:latest
   needs:
     - job: publish_linux
