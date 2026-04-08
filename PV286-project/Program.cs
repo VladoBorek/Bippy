@@ -7,6 +7,10 @@ using BusinessLayer.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
+#if RELEASE
+using Microsoft.Extensions.Logging;
+#endif
+
 namespace PV286_project
 {
     internal class Program
@@ -21,7 +25,7 @@ namespace PV286_project
                 .ConfigureLogging(logging =>
                 {
 #if RELEASE
-         logging.ClearProviders();
+                    logging.ClearProviders();
 #endif
                 })
                 .ConfigureServices(
