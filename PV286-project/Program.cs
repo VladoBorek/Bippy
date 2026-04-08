@@ -18,6 +18,12 @@ namespace PV286_project
             //   - Configures console + debug logging providers
             //   - Sets up DI container (IServiceProvider)
             IHost host = Host.CreateDefaultBuilder()
+                .ConfigureLogging(logging =>
+                {
+#if RELEASE
+         logging.ClearProviders();
+#endif
+                })
                 .ConfigureServices(
                     (context, services) =>
                     {
