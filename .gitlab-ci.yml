@@ -38,9 +38,7 @@ test_job:
     - shared-fi
   needs: [build_job]
   script:
-    - dotnet test --no-build --configuration Release -v q
-      --collect:"XPlat Code Coverage"
-      --results-directory ./coverage
+    - dotnet test --no-build --configuration Release -v q --collect:"XPlat Code Coverage" --results-directory ./coverage
   artifacts:
     reports:
       coverage_report:
@@ -99,30 +97,18 @@ runtime_trace:
 
 publish_linux:
   <<: *publish_template
-  script:
-    - dotnet publish ./PV286-project/PV286-project.csproj
-      -c Release -r linux-x64
-      --self-contained true
-      -p:PublishSingleFile=true
-      -p:PublishTrimmed=true
-      -p:DebugType=None
-      --output ./release
-    - mv ./release/PV286-project ./release/Bippy
-    - |
-      curl --header "JOB-TOKEN: $CI_JOB_TOKEN" \
-           --upload-file ./release/Bippy \
-           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/myapp/${CI_COMMIT_TAG}/Bippy-linux-x64"
+script:
+  - dotnet publish ./PV286-project/PV286-project.csproj -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true -p:DebugType=None --output ./release
+  - mv ./release/PV286-project ./release/Bippy
+  - |
+    curl --header "JOB-TOKEN: $CI_JOB_TOKEN" \
+          --upload-file ./release/Bippy \
+          "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/myapp/${CI_COMMIT_TAG}/Bippy-linux-x64"
 
 publish_windows:
   <<: *publish_template
   script:
-    - dotnet publish ./PV286-project/PV286-project.csproj
-      -c Release -r win-x64
-      --self-contained true
-      -p:PublishSingleFile=true
-      -p:PublishTrimmed=true
-      -p:DebugType=None
-      --output ./release
+    - dotnet publish ./PV286-project/PV286-project.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true -p:DebugType=None --output ./release
     - mv ./release/PV286-project.exe ./release/Bippy.exe
     - |
       curl --header "JOB-TOKEN: $CI_JOB_TOKEN" \

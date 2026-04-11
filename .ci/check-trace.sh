@@ -11,7 +11,7 @@ echo "────────────────────────�
 
 dotnet-trace collect \
   --output "$TRACE_OUT" \
-  -- dotnet run -c Release -- $TRACE_CLI_ARGS || CLI_EXIT=$?
+  -- dotnet run --project ./PV286-project/PV286-project.csproj -c Release -- $TRACE_CLI_ARGS || CLI_EXIT=$?
 
 echo ""
 echo "  Trace file  : $TRACE_OUT"
