@@ -11,14 +11,20 @@ echo "────────────────────────�
 
 dotnet-trace collect \
   --output "$TRACE_OUT" \
-  -- dotnet run -c Release -- $TRACE_CLI_ARGS
+  -- dotnet run -c Release -- $TRACE_CLI_ARGS || CLI_EXIT=$?
 
-size=$(stat -c%s "$TRACE_OUT")
 echo ""
-echo "  Trace file : $TRACE_OUT"
-echo "  Size       : ${size} bytes"
+echo "  Trace file  : $TRACE_OUT"
+echo "  CLI exit    : ${CLI_EXIT:-0}"
+echo "  Trace size  : $(stat -c%s "$TRACE_OUT") bytes"
 echo "───────────────────────────────────────────────"
 
+if [ "${CLI_EXIT:-0}" -ne 0 ]; then
+  echo -e "\n\033[31m✖ CLI exited with code $CLI_EXIT\033[0m"
+  exit 1
+fi
+
+size=$(stat -c%s "$TRACE_OUT")
 if [ "$size" -lt "$MIN_TRACE_BYTES" ]; then
   echo -e "\n\033[31m✖ Trace too small (${size}B) — process likely crashed\033[0m"
   exit 1

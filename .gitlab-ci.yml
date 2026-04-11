@@ -60,7 +60,9 @@ coverage_check:
   image: $ANALYZER_IMAGE
   tags:
     - shared-fi
-  needs: [test_job]
+  needs:
+    - job: test_job
+      artifacts: true
   script:
     - python3 .ci/check-coverage.py
   coverage: '/Line\s*:\s*\d+\.\d+%/'
