@@ -38,7 +38,10 @@ test_job:
     - shared-fi
   needs: [build_job]
   script:
-    - dotnet test --no-build --configuration Release -v q --collect:"XPlat Code Coverage" --results-directory ./coverage
+    - dotnet test --configuration Release -v q --collect:"XPlat Code Coverage" --results-directory ./coverage
+    - echo "=== Coverage files ==="
+    - find coverage -type f || true
+    - test -n "$(find coverage -name 'coverage.cobertura.xml')" || (echo "Coverage file missing" && exit 1)
   artifacts:
     reports:
       coverage_report:
@@ -62,6 +65,8 @@ coverage_check:
     - job: test_job
       artifacts: true
   script:
+    - echo "=== After artifact download ==="
+    - ls -R
     - echo "=== Workspace contents ==="
     - find . -name "*.xml" 2>/dev/null || echo "No XML files found"
     - find ./coverage -type f 2>/dev/null || echo "coverage/ missing"
