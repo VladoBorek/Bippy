@@ -1,0 +1,11 @@
+FROM mcr.microsoft.com/dotnet/sdk:9.0
+
+RUN dotnet tool install -g dotnet-reportgenerator-globaltool \
+ && dotnet tool install -g dotnet-stryker \
+ && dotnet tool install -g dotnet-trace \
+ && dotnet tool install -g dotnet-coverage \
+ && apt-get update -qq \
+ && apt-get install -y --no-install-recommends python3 \
+ && rm -rf /var/lib/apt/lists/*
+
+ENV PATH="$PATH:/root/.dotnet/tools"

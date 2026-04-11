@@ -3,8 +3,17 @@ image: mcr.microsoft.com/dotnet/sdk:9.0
 stages:
   - build
   - test
+  - analyze
   - publish
   - release
+
+variables:
+  ANALYZER_IMAGE: "mjolniron/ci-analyzer:latest"
+  COVERAGE_MIN_LINE: "80"
+  COVERAGE_MIN_BRANCH: "70"
+  TRACE_CLI_ARGS: "encode --entropy 78ba6f96c8a70f71c4acff1c9dc7b35d8988734180d9502eeada775b7cca103e --format hex"
+
+# ─── BUILD ───────────────────────────────────────────────────────────────────
 
 build_job:
   stage: build
@@ -13,31 +22,89 @@ build_job:
   script:
     - dotnet restore
     - dotnet build --configuration Release
+  artifacts:
+    paths: ["**/bin/Release", "**/obj"]
+    expire_in: 2 hours
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_TAG
+
+# ─── TEST + COVERAGE ─────────────────────────────────────────────────────────
 
 test_job:
   stage: test
   tags:
     - shared-fi
+  needs: [build_job]
   script:
-    - dotnet test --configuration Release
+    - dotnet test --no-build --configuration Release -v q
+      --collect:"XPlat Code Coverage"
+      --results-directory ./coverage
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/**/coverage.cobertura.xml
+    paths: ["coverage/"]
+    expire_in: 1 week
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_TAG
+
+# ─── ANALYZE ─────────────────────────────────────────────────────────────────
+
+coverage_check:
+  stage: analyze
+  image: $ANALYZER_IMAGE
+  tags:
+    - shared-fi
+  needs: [test_job]
+  script:
+    - python3 .ci/check-coverage.py
+  coverage: '/Line\s*:\s*\d+\.\d+%/'
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_TAG
+
+runtime_trace:
+  stage: analyze
+  image: $ANALYZER_IMAGE
+  tags:
+    - shared-fi
+  needs: [build_job]
+  script:
+    - bash .ci/check-trace.sh
+  artifacts:
+    paths: ["trace.nettrace"]
+    expire_in: 3 days
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_TAG
+
+# ─── PUBLISH ─────────────────────────────────────────────────────────────────
 
 .publish_template: &publish_template
   stage: publish
   tags:
     - shared-fi
+  needs: [coverage_check, runtime_trace]
   rules:
     - if: $CI_COMMIT_TAG
 
 publish_linux:
   <<: *publish_template
   script:
-    - dotnet publish ./PV286-project/PV286-project.csproj -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true -p:DebugType=None --output ./release
+    - dotnet publish ./PV286-project/PV286-project.csproj
+      -c Release -r linux-x64
+      --self-contained true
+      -p:PublishSingleFile=true
+      -p:PublishTrimmed=true
+      -p:DebugType=None
+      --output ./release
     - mv ./release/PV286-project ./release/Bippy
     - |
       curl --header "JOB-TOKEN: $CI_JOB_TOKEN" \
@@ -47,12 +114,20 @@ publish_linux:
 publish_windows:
   <<: *publish_template
   script:
-    - dotnet publish ./PV286-project/PV286-project.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true -p:DebugType=None --output ./release
+    - dotnet publish ./PV286-project/PV286-project.csproj
+      -c Release -r win-x64
+      --self-contained true
+      -p:PublishSingleFile=true
+      -p:PublishTrimmed=true
+      -p:DebugType=None
+      --output ./release
     - mv ./release/PV286-project.exe ./release/Bippy.exe
     - |
       curl --header "JOB-TOKEN: $CI_JOB_TOKEN" \
            --upload-file ./release/Bippy.exe \
            "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/myapp/${CI_COMMIT_TAG}/Bippy-win-x64.exe"
+
+# ─── RELEASE ─────────────────────────────────────────────────────────────────
 
 release_job:
   stage: release
