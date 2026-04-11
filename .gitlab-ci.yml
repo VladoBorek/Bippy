@@ -62,6 +62,9 @@ coverage_check:
     - job: test_job
       artifacts: true
   script:
+    - echo "=== Workspace contents ==="
+    - find . -name "*.xml" 2>/dev/null || echo "No XML files found"
+    - find ./coverage -type f 2>/dev/null || echo "coverage/ missing"
     - python3 .ci/check-coverage.py
   coverage: '/Line\s*:\s*\d+\.\d+%/'
   rules:
