@@ -77,22 +77,6 @@ coverage_check:
     - if: $CI_COMMIT_BRANCH == "main"
     - if: $CI_COMMIT_TAG
 
-runtime_trace:
-  stage: analyze
-  image: $ANALYZER_IMAGE
-  tags:
-    - shared-fi
-  needs: [build_job]
-  script:
-    - bash .ci/check-trace.sh
-  artifacts:
-    paths: ["trace.nettrace"]
-    expire_in: 3 days
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_BRANCH == "main"
-    - if: $CI_COMMIT_TAG
-
 # ─── PUBLISH ─────────────────────────────────────────────────────────────────
 
 .publish_template: &publish_template
