@@ -7,16 +7,11 @@ PERF_THRESHOLD="${PERF_THRESHOLD:-5.0}"
 
 mkdir -p "$OUTPUT"
 
-echo "=== perf stat ==="
-perf stat \
-    --repeat 5 \
-    -e task-clock,context-switches,page-faults \
-    "$BINARY" "$@" \
-    2>&1 | tee "$OUTPUT/stat_summary.txt"
+echo "=== time ==="
+/usr/bin/time -v "$BINARY" "$@" 2>&1 | tee "$OUTPUT/stat_summary.txt"
 
-# Extract elapsed time and check threshold
-ELAPSED=$(grep "seconds time elapsed" "$OUTPUT/stat_summary.txt" \
-          | awk '{print $1}' | tail -1)
+ELAPSED=$(grep "Elapsed (wall clock)" "$OUTPUT/stat_summary.txt" \
+          | awk -F'[:]' '{n=split($0,a,":"); if(n==4) print a[3]*60+a[4]; else print a[2]*60+a[3]}')
 
 echo ""
 echo "Wall-clock: ${ELAPSED}s  (threshold: ${PERF_THRESHOLD}s)"
