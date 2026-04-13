@@ -14,7 +14,7 @@ namespace PV286.Project.Tests
     [TestFixture]
     public class VerifyCommandTests
     {
-        private Mock<ICommandService> _commandServiceMock = null!;
+        private Mock<IVerifyService> _verifyServiceMock = null!;
 
         private const string Phrase =
             "photo memory captain decline vendor heavy seminar gloom mouse economy awkward tilt";
@@ -27,17 +27,17 @@ namespace PV286.Project.Tests
         [SetUp]
         public void Setup()
         {
-            _commandServiceMock = new Mock<ICommandService>(MockBehavior.Strict);
+            _verifyServiceMock = new Mock<IVerifyService>(MockBehavior.Strict);
         }
 
         [Test]
         public void Handle_WhenVerifyReturnsOk_WritesOKAndReturnsTrue()
         {
-            _commandServiceMock
+            _verifyServiceMock
                 .Setup(s => s.Verify(Phrase, Seed))
                 .Returns(Result.Ok(new VerifyDTO { IsValid = true }));
 
-            var cmd = new VerifyCommand(Phrase, Seed, _commandServiceMock.Object);
+            var cmd = new VerifyCommand(Phrase, Seed, _verifyServiceMock.Object);
 
             using var outWriter = new StringWriter();
             var origOut = Console.Out;
@@ -50,7 +50,7 @@ namespace PV286.Project.Tests
                 Assert.That(ok, Is.True);
                 Assert.That(outWriter.ToString(), Does.Contain("OK"));
 
-                _commandServiceMock.Verify(s => s.Verify(Phrase, Seed), Times.Once);
+                _verifyServiceMock.Verify(s => s.Verify(Phrase, Seed), Times.Once);
             }
             finally
             {
@@ -61,11 +61,11 @@ namespace PV286.Project.Tests
         [Test]
         public void Handle_WhenVerifyReturnsNok_WritesNOKAndReturnsTrue()
         {
-            _commandServiceMock
+            _verifyServiceMock
                 .Setup(s => s.Verify(Phrase, Seed))
                 .Returns(Result.Ok(new VerifyDTO { IsValid = false }));
 
-            var cmd = new VerifyCommand(Phrase, Seed, _commandServiceMock.Object);
+            var cmd = new VerifyCommand(Phrase, Seed, _verifyServiceMock.Object);
 
             using var outWriter = new StringWriter();
             var origOut = Console.Out;
@@ -78,7 +78,7 @@ namespace PV286.Project.Tests
                 Assert.That(ok, Is.True);
                 Assert.That(outWriter.ToString(), Does.Contain("NOK"));
 
-                _commandServiceMock.Verify(s => s.Verify(Phrase, Seed), Times.Once);
+                _verifyServiceMock.Verify(s => s.Verify(Phrase, Seed), Times.Once);
             }
             finally
             {
@@ -89,11 +89,11 @@ namespace PV286.Project.Tests
         [Test]
         public void Handle_WhenVerifyFails_WritesErrorAndReturnsFalse()
         {
-            _commandServiceMock
+            _verifyServiceMock
                 .Setup(s => s.Verify(Phrase, Seed))
                 .Returns(Result.Fail<VerifyDTO>("Invalid mnemonic checksum."));
 
-            var cmd = new VerifyCommand(Phrase, Seed, _commandServiceMock.Object);
+            var cmd = new VerifyCommand(Phrase, Seed, _verifyServiceMock.Object);
 
             using var errWriter = new StringWriter();
             var origErr = Console.Error;
@@ -106,7 +106,7 @@ namespace PV286.Project.Tests
                 Assert.That(ok, Is.False);
                 Assert.That(errWriter.ToString(), Does.Contain("Invalid mnemonic checksum."));
 
-                _commandServiceMock.Verify(s => s.Verify(Phrase, Seed), Times.Once);
+                _verifyServiceMock.Verify(s => s.Verify(Phrase, Seed), Times.Once);
             }
             finally
             {

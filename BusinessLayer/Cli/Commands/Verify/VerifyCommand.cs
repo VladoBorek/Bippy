@@ -14,18 +14,18 @@ namespace BusinessLayer.Cli.Commands.Verify
 
         private readonly string phrase;
         private readonly byte[] seed;
-        private readonly ICommandService commandService;
+        private readonly IVerifyService verifyService;
 
-        public VerifyCommand(string phrase, byte[] seed, ICommandService commandService)
+        public VerifyCommand(string phrase, byte[] seed, IVerifyService verifyService)
         {
             this.phrase = phrase;
             this.seed = seed;
-            this.commandService = commandService;
+            this.verifyService = verifyService;
         }
 
         public bool Handle()
         {
-            var verifyRes = commandService.Verify(phrase, seed);
+            var verifyRes = verifyService.Verify(phrase, seed);
 
             if (verifyRes.IsFailed)
             {

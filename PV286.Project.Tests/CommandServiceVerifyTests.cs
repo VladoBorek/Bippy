@@ -21,7 +21,7 @@ namespace PV286.Project.Tests
         [Test]
         public void Verify_ValidPhraseAndMatchingSeed_ReturnsOkWithTrue()
         {
-            var service = new CommandService();
+            var service = new VerifyService();
             var seed = Convert.FromHexString(ValidSeedHex);
 
             var result = service.Verify(ValidMnemonic, seed);
@@ -34,7 +34,7 @@ namespace PV286.Project.Tests
         [Test]
         public void Verify_ValidPhraseAndDifferentSeed_ReturnsOkWithFalse()
         {
-            var service = new CommandService();
+            var service = new VerifyService();
             var seed = Convert.FromHexString(ValidSeedHex);
             seed[0] ^= 0xFF;
 
@@ -47,7 +47,7 @@ namespace PV286.Project.Tests
         [Test]
         public void Verify_ValidPhraseAndAllZeroSeed_ReturnsOkWithFalse()
         {
-            var service = new CommandService();
+            var service = new VerifyService();
             var seed = new byte[64];
 
             var result = service.Verify(ValidMnemonic, seed);
@@ -59,7 +59,7 @@ namespace PV286.Project.Tests
         [Test]
         public void Verify_InvalidWord_Fails()
         {
-            var service = new CommandService();
+            var service = new VerifyService();
             var badMnemonic =
                 "photo memory captain decline vendor heavy seminar gloom mouse economy awkward WRONGWORD";
             var seed = Convert.FromHexString(ValidSeedHex);
@@ -73,7 +73,7 @@ namespace PV286.Project.Tests
         [Test]
         public void Verify_BadChecksum_Fails()
         {
-            var service = new CommandService();
+            var service = new VerifyService();
             var badMnemonic =
                 "photo memory captain decline vendor heavy seminar gloom mouse economy awkward atom";
             var seed = Convert.FromHexString(ValidSeedHex);
@@ -87,7 +87,7 @@ namespace PV286.Project.Tests
         [Test]
         public void Verify_WrongWordCount_Fails()
         {
-            var service = new CommandService();
+            var service = new VerifyService();
             var badMnemonic =
                 "photo memory captain decline vendor heavy seminar gloom mouse economy awkward";
             var seed = Convert.FromHexString(ValidSeedHex);
@@ -101,7 +101,7 @@ namespace PV286.Project.Tests
         [Test]
         public void Verify_EmptyPhrase_Fails()
         {
-            var service = new CommandService();
+            var service = new VerifyService();
             var seed = Convert.FromHexString(ValidSeedHex);
 
             var result = service.Verify(string.Empty, seed);
@@ -113,7 +113,7 @@ namespace PV286.Project.Tests
         [Test]
         public void Verify_SameInputs_IsDeterministic()
         {
-            var service = new CommandService();
+            var service = new VerifyService();
             var seed = Convert.FromHexString(ValidSeedHex);
 
             var result1 = service.Verify(ValidMnemonic, seed);

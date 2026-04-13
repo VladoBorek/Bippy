@@ -6,6 +6,5 @@ namespace BusinessLayer.Services.Interfaces
 {
     public interface ICommandService
     {
-        Result<VerifyDTO> Verify(string phrase, byte[] seed);
     }
 }

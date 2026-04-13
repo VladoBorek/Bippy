@@ -44,6 +44,8 @@ namespace PV286_project
                         services.AddSingleton<ICommandService, CommandService>();
                         services.AddSingleton<IEncodeService, EncodeService>();
                         services.AddSingleton<IDecodeService, DecodeService>();
+                        services.AddSingleton<IVerifyService, VerifyService>();
+
 
                         services.AddSingleton<ICliParser, EncodeParser>();
                         services.AddSingleton<ICliParser, DecodeParser>();

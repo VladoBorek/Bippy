@@ -51,6 +51,8 @@ namespace PV286.Project.Tests
                     {
                         services.AddSingleton(_ => new ConsoleArgs { args = args });
                         services.AddSingleton<ICommandService, CommandService>();
+                        services.AddSingleton<IVerifyService, VerifyService>();
+
                         services.AddSingleton<IArgParser, ArgParser>();
                         services.AddSingleton<ICliParser, VerifyParser>();
                         services.AddHostedService<AppWorker>();

@@ -3,6 +3,7 @@ using BusinessLayer.CLI.Commands;
 using BusinessLayer.CLI.Utils;
 using BusinessLayer.CLI.Utils.Enums;
 using BusinessLayer.CLI.Validators;
+using BusinessLayer.Services;
 using BusinessLayer.Services.Interfaces;
 using ResultPattern;
 using System;
@@ -16,10 +17,10 @@ namespace BusinessLayer.Cli.Commands.Verify
     public class VerifyParser : ICliParser
     {
         public string CommandName => "verify";
-        private readonly ICommandService commandService;
-        public VerifyParser(ICommandService commandService)
+        private readonly IVerifyService verifyService;
+        public VerifyParser(IVerifyService verifyService)
         {
-            this.commandService = commandService;
+            this.verifyService = verifyService;
         }
 
         public Result<ICliCommand> Parse(string[] args)
@@ -55,7 +56,7 @@ namespace BusinessLayer.Cli.Commands.Verify
             byte[] seedBytes = StringSeedToBytes(seed, format);
 
             return Result.Ok<ICliCommand>(
-                new VerifyCommand(phrase, seedBytes, commandService)
+                new VerifyCommand(phrase, seedBytes, verifyService)
             );
         }
 

@@ -12,7 +12,7 @@ namespace PV286.Project.Tests
     [TestFixture]
     public class VerifyParserTests
     {
-        private Mock<ICommandService> _commandServiceMock = null!;
+        private Mock<IVerifyService> _verifyServiceMock= null!;
 
         private const string ValidMnemonic =
             "photo memory captain decline vendor heavy seminar gloom mouse economy awkward tilt";
@@ -24,13 +24,13 @@ namespace PV286.Project.Tests
         [SetUp]
         public void SetUp()
         {
-            _commandServiceMock = new Mock<ICommandService>(MockBehavior.Strict);
+            _verifyServiceMock = new Mock<IVerifyService>(MockBehavior.Strict);
         }
 
         [Test]
         public void Parse_ValidHexPhraseAndSeed_ReturnsVerifyCommand()
         {
-            var parser = new VerifyParser(_commandServiceMock.Object);
+            var parser = new VerifyParser(_verifyServiceMock.Object);
 
             var result = parser.Parse(new[]
             {
@@ -46,7 +46,7 @@ namespace PV286.Project.Tests
         [Test]
         public void Parse_ValidBinarySeed_ReturnsVerifyCommand()
         {
-            var parser = new VerifyParser(_commandServiceMock.Object);
+            var parser = new VerifyParser(_verifyServiceMock.Object);
             var seedBin = new string('0', 512);
 
             var result = parser.Parse(new[]
@@ -63,7 +63,7 @@ namespace PV286.Project.Tests
         [Test]
         public void Parse_NoArgs_ReturnsPhraseRequired()
         {
-            var parser = new VerifyParser(_commandServiceMock.Object);
+            var parser = new VerifyParser(_verifyServiceMock.Object);
 
             var result = parser.Parse(Array.Empty<string>());
 
@@ -74,7 +74,7 @@ namespace PV286.Project.Tests
         [Test]
         public void Parse_PhraseMissingValue_ReturnsExactMessage()
         {
-            var parser = new VerifyParser(_commandServiceMock.Object);
+            var parser = new VerifyParser(_verifyServiceMock.Object);
 
             var result = parser.Parse(new[] { "--phrase" });
 
@@ -85,7 +85,7 @@ namespace PV286.Project.Tests
         [Test]
         public void Parse_SeedMissingValue_ReturnsExactMessage()
         {
-            var parser = new VerifyParser(_commandServiceMock.Object);
+            var parser = new VerifyParser(_verifyServiceMock.Object);
 
             var result = parser.Parse(new[] { "--phrase", ValidMnemonic, "--seed" });
 
@@ -96,7 +96,7 @@ namespace PV286.Project.Tests
         [Test]
         public void Parse_SeedNotProvided_ReturnsRequiredMessage()
         {
-            var parser = new VerifyParser(_commandServiceMock.Object);
+            var parser = new VerifyParser(_verifyServiceMock.Object);
 
             var result = parser.Parse(new[] { "--phrase", ValidMnemonic });
 
@@ -107,7 +107,7 @@ namespace PV286.Project.Tests
         [Test]
         public void Parse_PhraseNotProvided_ReturnsRequiredMessage()
         {
-            var parser = new VerifyParser(_commandServiceMock.Object);
+            var parser = new VerifyParser(_verifyServiceMock.Object);
 
             var result = parser.Parse(new[] { "--seed", ValidSeedHex, "--format", "hex" });
 
@@ -118,7 +118,7 @@ namespace PV286.Project.Tests
         [Test]
         public void Parse_UnknownOption_ReturnsExactMessage()
         {
-            var parser = new VerifyParser(_commandServiceMock.Object);
+            var parser = new VerifyParser(_verifyServiceMock.Object);
 
             var result = parser.Parse(new[]
             {
@@ -136,7 +136,7 @@ namespace PV286.Project.Tests
         [TestCase("unknown")]
         public void Parse_InvalidFormat_ReturnsExactMessage(string badFormat)
         {
-            var parser = new VerifyParser(_commandServiceMock.Object);
+            var parser = new VerifyParser(_verifyServiceMock.Object);
 
             var result = parser.Parse(new[]
             {
@@ -152,7 +152,7 @@ namespace PV286.Project.Tests
         [Test]
         public void Parse_InvalidHexSeedCharacters_ReturnsExactMessage()
         {
-            var parser = new VerifyParser(_commandServiceMock.Object);
+            var parser = new VerifyParser(_verifyServiceMock.Object);
             var badSeed = new string('Z', 128);
 
             var result = parser.Parse(new[]
@@ -169,7 +169,7 @@ namespace PV286.Project.Tests
         [Test]
         public void Parse_InvalidHexSeedLength_ReturnsExactMessage()
         {
-            var parser = new VerifyParser(_commandServiceMock.Object);
+            var parser = new VerifyParser(_verifyServiceMock.Object);
 
             var result = parser.Parse(new[]
             {
@@ -185,7 +185,7 @@ namespace PV286.Project.Tests
         [Test]
         public void Parse_InvalidBinarySeedCharacters_ReturnsExactMessage()
         {
-            var parser = new VerifyParser(_commandServiceMock.Object);
+            var parser = new VerifyParser(_verifyServiceMock.Object);
             var badSeed = new string('2', 512);
 
             var result = parser.Parse(new[]
@@ -202,7 +202,7 @@ namespace PV286.Project.Tests
         [Test]
         public void Parse_InvalidBinarySeedLength_ReturnsExactMessage()
         {
-            var parser = new VerifyParser(_commandServiceMock.Object);
+            var parser = new VerifyParser(_verifyServiceMock.Object);
             var shortSeed = new string('0', 511);
 
             var result = parser.Parse(new[]
@@ -219,7 +219,7 @@ namespace PV286.Project.Tests
         [Test]
         public void Parse_DefaultFormat_IsHex()
         {
-            var parser = new VerifyParser(_commandServiceMock.Object);
+            var parser = new VerifyParser(_verifyServiceMock.Object);
 
             var result = parser.Parse(new[]
             {
