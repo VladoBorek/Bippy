@@ -1,6 +1,6 @@
-﻿using BusinessLayer.Cli.Commands.Verify;
+﻿using BusinessLayer.Cli.Commands.Decode;
+using BusinessLayer.Cli.Commands.Verify;
 using BusinessLayer.CLI.Commands;
-using BusinessLayer.CLI.Commands.Decode;
 using BusinessLayer.CLI.Commands.Encode;
 using BusinessLayer.CLI.Commands.Help;
 using BusinessLayer.CLI.Parser;

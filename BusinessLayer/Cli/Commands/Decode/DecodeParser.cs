@@ -2,8 +2,9 @@ using BusinessLayer.CLI.Utils.Enums;
 using BusinessLayer.Services.Interfaces;
 using ResultPattern;
 using BusinessLayer.CLI.Utils;
+using BusinessLayer.CLI.Commands;
 
-namespace BusinessLayer.CLI.Commands.Decode
+namespace BusinessLayer.Cli.Commands.Decode
 {
     public class DecodeParser : ICliParser
     {

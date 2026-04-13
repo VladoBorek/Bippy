@@ -3,10 +3,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using BusinessLayer.CLI.Parser;
 using BusinessLayer.CLI.Commands;
-using BusinessLayer.CLI.Commands.Decode;
 using BusinessLayer.Services;
 using BusinessLayer.Services.Interfaces;
 using PV286_project;
+using BusinessLayer.Cli.Commands.Decode;
 
 namespace PV286.Project.Tests
 {
