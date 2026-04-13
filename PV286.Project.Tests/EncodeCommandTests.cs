@@ -1,8 +1,9 @@
-using Moq;
 using BusinessLayer.CLI.Commands.Encode;
 using BusinessLayer.CLI.Utils.Enums;
-using BusinessLayer.Services.Interfaces;
 using BusinessLayer.DTOs;
+using BusinessLayer.Services;
+using BusinessLayer.Services.Interfaces;
+using Moq;
 using NBitcoin;
 using ResultPattern;
 
@@ -11,12 +12,12 @@ namespace PV286.Project.Tests
     [TestFixture]
     public class EncodeCommandTests
     {
-        private Mock<ICommandService> _commandServiceMock = null!;
+        private Mock<IEncodeService> _encodeServiceMock = null!;
 
         [SetUp]
         public void Setup()
         {
-            _commandServiceMock = new Mock<ICommandService>(MockBehavior.Strict);
+            _encodeServiceMock = new Mock<IEncodeService>(MockBehavior.Strict);
         }
 
         // -------------------------------------------------------
@@ -35,11 +36,11 @@ namespace PV286.Project.Tests
                 Format = format
             };
 
-            _commandServiceMock
+            _encodeServiceMock
                 .Setup(s => s.Encode(entropy, format))
                 .Returns(Result.Ok(dto));
 
-            var encodeCommand = new EncodeCommand(entropy, format, _commandServiceMock.Object);
+            var encodeCommand = new EncodeCommand(entropy, format, _encodeServiceMock.Object);
 
             using var outWriter = new StringWriter();
             var origOut = Console.Out;
@@ -54,7 +55,7 @@ namespace PV286.Project.Tests
                 string printed = outWriter.ToString();
                 Assert.That(printed, Contains.Substring(dto.ToString()));
 
-                _commandServiceMock.Verify(
+                _encodeServiceMock.Verify(
                     s => s.Encode(entropy, format),
                     Times.Once
                 );
@@ -74,11 +75,11 @@ namespace PV286.Project.Tests
             var entropy = new byte[] { 0xFF };
             var format = ValueFormat.Bin;
 
-            _commandServiceMock
+            _encodeServiceMock
                 .Setup(s => s.Encode(entropy, format))
                 .Returns(Result.Fail<EncodeDTO>("Something went wrong"));
 
-            var encodeCommand = new EncodeCommand(entropy, format, _commandServiceMock.Object);
+            var encodeCommand = new EncodeCommand(entropy, format, _encodeServiceMock.Object);
 
             using var errWriter = new StringWriter();
             var origErr = Console.Error;
@@ -93,7 +94,7 @@ namespace PV286.Project.Tests
                 string printed = errWriter.ToString();
                 Assert.That(printed, Contains.Substring("Something went wrong"));
 
-                _commandServiceMock.Verify(
+                _encodeServiceMock.Verify(
                     s => s.Encode(entropy, format),
                     Times.Once
                 );
@@ -111,7 +112,7 @@ namespace PV286.Project.Tests
         public void Constructor_SetsProperties()
         {
             var entropy = new byte[] { 0x11, 0x22 };
-            var encodeCommand = new EncodeCommand(entropy, ValueFormat.Hex, _commandServiceMock.Object);
+            var encodeCommand = new EncodeCommand(entropy, ValueFormat.Hex, _encodeServiceMock.Object);
 
             Assert.That(encodeCommand.Entropy, Is.EqualTo(entropy));
             Assert.That(encodeCommand.Format, Is.EqualTo(ValueFormat.Hex));

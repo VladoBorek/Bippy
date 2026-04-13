@@ -38,6 +38,8 @@ namespace PV286.Project.Tests
 
                         // Required services
                         services.AddSingleton<ICommandService, CommandService>();
+                        services.AddSingleton<IEncodeService, EncodeService>();
+
                         services.AddSingleton<IArgParser, ArgParser>();
 
                         // Register command parsers

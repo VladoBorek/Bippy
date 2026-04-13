@@ -38,7 +38,7 @@ namespace BusinessLayer.CLI.Commands.Help
                   dotnet run -- encode
                   dotnet run -- encode --entropy 78ba6f96c8a70f71c4acff1c9dc7b35d8988734180d9502eeada775b7cca103e --format hex
                   dotnet run -- decode ""photo memory captain decline vendor heavy seminar gloom mouse economy awkward tilt"" --format hex
-                  dotnet run -- verify --phrase ""photo memory captain decline vendor heavy seminar gloom mouse economy awkward tilt"" --seed f337beabcfff42915cd9a65fb48745dd0bd122718f04789caeed86cacd35c028d151f3f1ed100bf01adedbf734270b269632d851f45cbbf4bdd0ba6c0bce94db --format hex
+                  dotnet run -- verify --phrase ""judge square toss mule ill rib bargain paper broken until under roast obtain defy alcohol brass expand jar repair upgrade result govern domain solid"" --seed 897f9beefb28fa6660e65a6b77518547d1bf8ad203cae84cf5614174fce86d8c8329547779a319090c4557fd330b36b294a1cc9bcaaf5c3f2b48eefbe5142340 --format hex
                   dotnet run -- batch ""C:\batch.txt""
                   dotnet run -- batch - ""encode --format bin | encode"""
             );

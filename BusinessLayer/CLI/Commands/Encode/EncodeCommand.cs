@@ -1,4 +1,5 @@
 ﻿using BusinessLayer.CLI.Utils.Enums;
+using BusinessLayer.Services;
 using BusinessLayer.Services.Interfaces;
 
 namespace BusinessLayer.CLI.Commands.Encode
@@ -8,18 +9,18 @@ namespace BusinessLayer.CLI.Commands.Encode
         public string CommandName => "encode";
         public byte[]? Entropy { get; }
         public ValueFormat Format { get; }
-        private readonly ICommandService commandService;
+        private readonly IEncodeService encodeService;
 
-        public EncodeCommand(byte[]? entropy, ValueFormat format, ICommandService commandService)
+        public EncodeCommand(byte[]? entropy, ValueFormat format, IEncodeService encodeService)
         {
             Entropy = entropy;
             Format = format;
-            this.commandService = commandService;
+            this.encodeService = encodeService;
         }
 
         public bool Handle()
         {
-            var mnemonicSeedRes = commandService.Encode(Entropy, Format);
+            var mnemonicSeedRes = encodeService.Encode(Entropy, Format);
 
             if (mnemonicSeedRes.IsFailed)
             {

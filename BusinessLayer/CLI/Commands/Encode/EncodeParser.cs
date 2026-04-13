@@ -1,6 +1,7 @@
 ﻿using BusinessLayer.CLI.Utils;
 using BusinessLayer.CLI.Utils.Enums;
 using BusinessLayer.CLI.Validators;
+using BusinessLayer.Services;
 using BusinessLayer.Services.Interfaces;
 using ResultPattern;
 
@@ -9,11 +10,11 @@ namespace BusinessLayer.CLI.Commands.Encode
     public class EncodeParser : ICliParser
     {
         public string CommandName => "encode";
-        private readonly ICommandService commandService;
+        private readonly IEncodeService encodeService;
 
-        public EncodeParser(ICommandService commandService)
+        public EncodeParser(IEncodeService encodeService)
         {
-            this.commandService = commandService;
+            this.encodeService = encodeService;
         }
 
         public Result<ICliCommand> Parse(string[] args)
@@ -48,7 +49,7 @@ namespace BusinessLayer.CLI.Commands.Encode
 
             entropyBytes = StringEntropyToBytes(entropy, format);
 
-            return Result.Ok<ICliCommand>(new EncodeCommand(entropyBytes, format, commandService));
+            return Result.Ok<ICliCommand>(new EncodeCommand(entropyBytes, format, encodeService));
         }
 
         private static byte[]? StringEntropyToBytes(string? entropy, ValueFormat format)

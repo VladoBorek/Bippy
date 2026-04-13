@@ -2,18 +2,19 @@ using Moq;
 using BusinessLayer.CLI.Commands.Encode;
 using BusinessLayer.CLI.Utils.Enums;
 using BusinessLayer.Services.Interfaces;
+using BusinessLayer.Services;
 
 namespace PV286.Project.Tests
 {
     [TestFixture]
     public class EncodeParserTests
     {
-        private Mock<ICommandService> _commandServiceMock = null!;
+        private Mock<IEncodeService> _encodeServiceMock = null!;
 
         [SetUp]
         public void SetUp()
         {
-            _commandServiceMock = new Mock<ICommandService>(MockBehavior.Strict);
+            _encodeServiceMock = new Mock<IEncodeService>(MockBehavior.Strict);
         }
 
         // -------------------------------------------------------
@@ -22,7 +23,7 @@ namespace PV286.Project.Tests
         [Test]
         public void Parse_NoArgs_ReturnsEncodeCommand_WithDefaultHex_AndNullEntropy()
         {
-            var encodeParser = new EncodeParser(_commandServiceMock.Object);
+            var encodeParser = new EncodeParser(_encodeServiceMock.Object);
 
             var result = encodeParser.Parse(Array.Empty<string>());
 
@@ -40,7 +41,7 @@ namespace PV286.Project.Tests
         [Test]
         public void Parse_UnknownOption_ReturnsFail_WithExactMessage()
         {
-            var encodeParser = new EncodeParser(_commandServiceMock.Object);
+            var encodeParser = new EncodeParser(_encodeServiceMock.Object);
 
             var result = encodeParser.Parse(new[] { "--unknown" });
 
@@ -54,7 +55,7 @@ namespace PV286.Project.Tests
         [Test]
         public void Parse_EntropyMissingValue_ReturnsFail_WithExactMessage()
         {
-            var encodeParser = new EncodeParser(_commandServiceMock.Object);
+            var encodeParser = new EncodeParser(_encodeServiceMock.Object);
 
             var result = encodeParser.Parse(new[] { "--entropy" });
 
@@ -70,7 +71,7 @@ namespace PV286.Project.Tests
         {
             // valid 32-hex-char value so only "format missing" rule triggers
             const string validHex32 = "00112233445566778899AABBCCDDEEFF";
-            var encodeParser = new EncodeParser(_commandServiceMock.Object);
+            var encodeParser = new EncodeParser(_encodeServiceMock.Object);
 
             var result = encodeParser.Parse(new[] { "--entropy", validHex32 });
 
@@ -90,7 +91,7 @@ namespace PV286.Project.Tests
             const string hex = "00112233445566778899AABBCCDDEEFF"; // 32 chars
             var expectedBytes = Convert.FromHexString(hex);
 
-            var encodeParser = new EncodeParser(_commandServiceMock.Object);
+            var encodeParser = new EncodeParser(_encodeServiceMock.Object);
 
             var result = encodeParser.Parse(new[] { "--entropy", hex, "--format", "hex" });
 
@@ -112,7 +113,7 @@ namespace PV286.Project.Tests
             var bin128 = new string('0', 128);
             var expected = Enumerable.Repeat((byte)0x00, 16).ToArray();
 
-            var encodeParser = new EncodeParser(_commandServiceMock.Object);
+            var encodeParser = new EncodeParser(_encodeServiceMock.Object);
 
             var result = encodeParser.Parse(new[] { "--entropy", bin128, "--format", "bin" });
 
@@ -132,7 +133,7 @@ namespace PV286.Project.Tests
         [TestCase("Hex")]
         public void Parse_FormatInvalidCase_ReturnsFail_WithExactMessage(string badFormat)
         {
-            var encodeParser = new EncodeParser(_commandServiceMock.Object);
+            var encodeParser = new EncodeParser(_encodeServiceMock.Object);
 
             var result = encodeParser.Parse(new[] { "--format", badFormat });
 

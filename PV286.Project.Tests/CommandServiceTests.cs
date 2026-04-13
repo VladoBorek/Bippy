@@ -11,7 +11,7 @@ namespace PV286.Project.Tests
         [Test]
         public void Entropy_16Bytes_Produces12Words()
         {
-            var svc = new CommandService();
+            var svc = new EncodeService();
             var entropy = new byte[16]; // 128 bits
             var res = svc.Encode(entropy, ValueFormat.Hex);
 
@@ -22,7 +22,7 @@ namespace PV286.Project.Tests
         [Test]
         public void Entropy_20Bytes_Produces15Words()
         {
-            var svc = new CommandService();
+            var svc = new EncodeService();
             var entropy = new byte[20]; // 160 bits
             var res = svc.Encode(entropy, ValueFormat.Hex);
 
@@ -33,7 +33,7 @@ namespace PV286.Project.Tests
         [Test]
         public void Entropy_24Bytes_Produces18Words()
         {
-            var svc = new CommandService();
+            var svc = new EncodeService();
             var entropy = new byte[24]; // 192 bits
             var res = svc.Encode(entropy, ValueFormat.Hex);
 
@@ -44,7 +44,7 @@ namespace PV286.Project.Tests
         [Test]
         public void Entropy_28Bytes_Produces21Words()
         {
-            var svc = new CommandService();
+            var svc = new EncodeService();
             var entropy = new byte[28]; // 224 bits
             var res = svc.Encode(entropy, ValueFormat.Hex);
 
@@ -55,7 +55,7 @@ namespace PV286.Project.Tests
         [Test]
         public void Entropy_32Bytes_Produces24Words()
         {
-            var svc = new CommandService();
+            var svc = new EncodeService();
             var entropy = new byte[32]; // 256 bits
             var res = svc.Encode(entropy, ValueFormat.Hex);
 
@@ -74,7 +74,7 @@ namespace PV286.Project.Tests
         public void Encode_WithProvidedEntropy_ReturnsExpectedMnemonicAndSeed()
         {
             // Arrange
-            var commandService = new CommandService();
+            var commandService = new EncodeService();
             var entropy = new byte[]
             {
                 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -104,7 +104,7 @@ namespace PV286.Project.Tests
         [Test]
         public void Encode_NullEntropy_GeneratesRandomEntropyOfCorrectLength()
         {
-            var commandService = new CommandService();
+            var commandService = new EncodeService();
 
             var result = commandService.Encode(null, ValueFormat.Hex);
 
@@ -124,7 +124,7 @@ namespace PV286.Project.Tests
         [TestCase(ValueFormat.Bin)]
         public void Encode_PreservesFormat(ValueFormat format)
         {
-            var commandService = new CommandService();
+            var commandService = new EncodeService();
 
             var result = commandService.Encode(null, format);
 
@@ -138,9 +138,9 @@ namespace PV286.Project.Tests
         [Test]
         public void Encode_SeedMatchesDerivedSeed()
         {
-            var commandService = new CommandService();
+            var commandService = new EncodeService();
             var entropy = RandomUtils.GetBytes(32);
-
+            
             var result = commandService.Encode(entropy, ValueFormat.Hex);
             Assert.That(result.IsSuccess, Is.True);
 
