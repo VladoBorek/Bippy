@@ -8,18 +8,18 @@ namespace BusinessLayer.CLI.Commands.Decode
         public string CommandName => "decode";
         private readonly string phrase;
         private readonly ValueFormat format;
-        private readonly ICommandService commandService;
+        private readonly IDecodeService decodeService;
 
-        public DecodeCommand(string phrase, ValueFormat format, ICommandService commandService)
+        public DecodeCommand(string phrase, ValueFormat format, IDecodeService decodeService)
         {
             this.phrase = phrase;
             this.format = format;
-            this.commandService = commandService;
+            this.decodeService = decodeService;
         }
 
         public bool Handle()
         {
-            var decodeRes = commandService.Decode(phrase, format);
+            var decodeRes = decodeService.Decode(phrase, format);
 
             if (decodeRes.IsFailed)
             {

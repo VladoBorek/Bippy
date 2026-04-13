@@ -8,11 +8,11 @@ namespace BusinessLayer.CLI.Commands.Decode
     public class DecodeParser : ICliParser
     {
         public string CommandName => "decode";
-        private readonly ICommandService commandService;
+        private readonly IDecodeService decodeService;
 
-        public DecodeParser(ICommandService commandService)
+        public DecodeParser(IDecodeService decodeService)
         {
-            this.commandService = commandService;
+            this.decodeService = decodeService;
         }
 
         public Result<ICliCommand> Parse(string[] args)
@@ -42,7 +42,7 @@ namespace BusinessLayer.CLI.Commands.Decode
             if (phrase == null)
                 return Result.Fail<ICliCommand>("No mnemonic phrase provided for 'decode'.");
 
-            return Result.Ok<ICliCommand>(new DecodeCommand(phrase, format, commandService));
+            return Result.Ok<ICliCommand>(new DecodeCommand(phrase, format, decodeService));
         }
 
         private static Result ParseFormat(string[] args, ref int i, out ValueFormat format)
