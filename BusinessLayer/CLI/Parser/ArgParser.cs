@@ -15,7 +15,7 @@ namespace BusinessLayer.CLI.Parser
 
         public Result<ICliCommand> Parse(string[] args)
         {
-            if (args.Length == 0)
+            if (args.Length == 0 || args[0] == "--help")
                 return Result.Ok<ICliCommand>(new HelpCommand());
 
             var commandParser = commandParsers.FirstOrDefault(p => p.CommandName == args[0]);
