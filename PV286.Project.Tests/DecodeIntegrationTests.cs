@@ -32,7 +32,6 @@ namespace PV286.Project.Tests
                     .ConfigureServices(services =>
                     {
                         services.AddSingleton(_ => new ConsoleArgs { args = args });
-                        //services.AddSingleton<ICommandService, CommandService>();
                         services.AddSingleton<IDecodeService, DecodeService>();
 
                         services.AddSingleton<IArgParser, ArgParser>();

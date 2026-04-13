@@ -19,6 +19,7 @@ namespace BusinessLayer.CLI.Parser
                 return Result.Ok<ICliCommand>(new HelpCommand());
 
             var commandParser = commandParsers.FirstOrDefault(p => p.CommandName == args[0]);
+
             if (commandParser is null)
                 return Result.Fail<ICliCommand>($"Unrecognized command '{args[0]}'.");
 
