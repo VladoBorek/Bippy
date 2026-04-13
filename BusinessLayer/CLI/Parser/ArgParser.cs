@@ -15,14 +15,14 @@ namespace BusinessLayer.CLI.Parser
 
         public Result<ICliCommand> Parse(string[] args)
         {
-            if (args.Length == 0 || args[0] == "--help")
+            if (args.Length == 0)
                 return Result.Ok<ICliCommand>(new HelpCommand());
 
-            var command = commandParsers.FirstOrDefault(p => p.CommandName == args[0]);
-            if (command is null)
+            var commandParser = commandParsers.FirstOrDefault(p => p.CommandName == args[0]);
+            if (commandParser is null)
                 return Result.Fail<ICliCommand>($"Unrecognized command '{args[0]}'.");
 
-            return command.Parse(args.Skip(1).ToArray());
+            return commandParser.Parse(args.Skip(1).ToArray());
         }
     }
 }
