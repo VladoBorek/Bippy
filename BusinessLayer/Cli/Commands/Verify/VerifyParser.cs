@@ -13,10 +13,6 @@ using System.Threading.Tasks;
 
 namespace BusinessLayer.Cli.Commands.Verify
 {
-    // Recommended CLI shape for verify
-    //dotnet run --verify--phrase "photo memory captain ..." --seed f337... --format hex
-    //dotnet run -- verify --phrase "photo memory captain ..." --seed 1010... --format bin
-
     public class VerifyParser : ICliParser
     {
         public string CommandName => "verify";
