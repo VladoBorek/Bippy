@@ -41,7 +41,6 @@ namespace PV286_project
 
                         // Business Layer
                         // Register application services
-                        services.AddSingleton<ICommandService, CommandService>();
                         services.AddSingleton<IEncodeService, EncodeService>();
                         services.AddSingleton<IDecodeService, DecodeService>();
                         services.AddSingleton<IVerifyService, VerifyService>();
