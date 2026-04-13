@@ -12,11 +12,11 @@ namespace BusinessLayer.CLI.Commands.Help
                 Generate a BIP-39 mnemonic phrase and seed.
 
                 Usage:
-                  dotnet run -- encode [--entropy <value> --format <hex|bin>]
-                  dotnet run -- decode <mnemonic phrase> [--format <hex|bin>]
-                  dotnet run -- verify --phrase <mnemonic phrase> --seed <value> [--format <hex|bin>]
-                  dotnet run -- batch <filepath|->
-                  dotnet run -- --help
+                  Bippy encode [--entropy <value> --format <hex|bin>]
+                  Bippy decode <mnemonic phrase> [--format <hex|bin>]
+                  Bippy verify --phrase <mnemonic phrase> --seed <value> [--format <hex|bin>]
+                  Bippy batch <filepath|->
+                  Bippy --help
 
                 Options:
                   --entropy <value>    Entropy input for 'encode'.
@@ -35,12 +35,12 @@ namespace BusinessLayer.CLI.Commands.Help
                   'verify' outputs OK if the phrase generates the seed, otherwise NOK.
 
                 Examples:
-                  dotnet run -- encode
-                  dotnet run -- encode --entropy 78ba6f96c8a70f71c4acff1c9dc7b35d8988734180d9502eeada775b7cca103e --format hex
-                  dotnet run -- decode ""photo memory captain decline vendor heavy seminar gloom mouse economy awkward tilt"" --format hex
-                  dotnet run -- verify --phrase ""judge square toss mule ill rib bargain paper broken until under roast obtain defy alcohol brass expand jar repair upgrade result govern domain solid"" --seed 897f9beefb28fa6660e65a6b77518547d1bf8ad203cae84cf5614174fce86d8c8329547779a319090c4557fd330b36b294a1cc9bcaaf5c3f2b48eefbe5142340 --format hex
-                  dotnet run -- batch ""C:\batch.txt""
-                  dotnet run -- batch - ""encode --format bin | encode"""
+                  Bippy encode
+                  Bippy encode --entropy 78ba6f96c8a70f71c4acff1c9dc7b35d8988734180d9502eeada775b7cca103e --format hex
+                  Bippy decode ""photo memory captain decline vendor heavy seminar gloom mouse economy awkward tilt"" --format hex
+                  Bippy verify --phrase ""judge square toss mule ill rib bargain paper broken until under roast obtain defy alcohol brass expand jar repair upgrade result govern domain solid"" --seed 897f9beefb28fa6660e65a6b77518547d1bf8ad203cae84cf5614174fce86d8c8329547779a319090c4557fd330b36b294a1cc9bcaaf5c3f2b48eefbe5142340 --format hex
+                  Bippy batch ""C:\batch.txt""
+                  Bippy batch - ""encode --format bin | encode"""
             );
 
             return true;
