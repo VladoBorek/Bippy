@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace BusinessLayer.Cli.Validators
 {
-    public class SeedValidator
+    public static class SeedValidator
     {
         public static Result IsValidSeed(string seed, ValueFormat format)
         {

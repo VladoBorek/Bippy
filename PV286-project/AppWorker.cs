@@ -47,9 +47,9 @@ public class AppWorker : BackgroundService
 
             Environment.ExitCode = success ? 0 : 1;
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException ex)
         {
-            logger.LogWarning("Application was cancelled");
+            logger.LogWarning(ex, "Application was cancelled");
         }
         catch (Exception ex)
         {

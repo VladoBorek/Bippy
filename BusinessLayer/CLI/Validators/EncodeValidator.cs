@@ -3,7 +3,7 @@ using ResultPattern;
 
 namespace BusinessLayer.CLI.Validators
 {
-    public class EncodeValidator
+    public static class EncodeValidator
     {
         public static Result IsValidEncode(string? entropy, bool formatProvided, ValueFormat format)
         {

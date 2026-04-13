@@ -182,8 +182,10 @@ namespace PV286.Project.Tests
         [Category("Integration")]
         public async Task Decode_NullArgument_Fails()
         {
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
             var (code, stdout, stderr) =
-                await RunAppAsync("decode", (string)null);
+                await RunAppAsync("decode", null);
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
 
             Assert.That(code, Is.Not.EqualTo(0));
             Assert.That(stdout + stderr,

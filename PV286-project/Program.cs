@@ -15,7 +15,7 @@ using Microsoft.Extensions.Logging;
 
 namespace PV286_project
 {
-    internal class Program
+    internal static class Program
     {
         static async Task Main(string[] args)
         {

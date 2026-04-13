@@ -3,7 +3,7 @@ using ResultPattern;
 
 namespace BusinessLayer.CLI.Validators
 {
-    public class EntropyValidator
+    public static class EntropyValidator
     {
         public static Result IsValidEntropy(string entropy, ValueFormat valueFormat)
         {
