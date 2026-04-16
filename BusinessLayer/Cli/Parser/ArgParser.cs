@@ -16,7 +16,11 @@ namespace BusinessLayer.Cli.Parser
         public Result<ICliCommand> Parse(string[] args)
         {
             if (args.Length == 0 || args[0] == "--help")
+            {
+                if(args.Length > 1) return Result.Fail<ICliCommand>("The '--help' flag cannot be used with other arguments.");
+                
                 return Result.Ok<ICliCommand>(new HelpCommand());
+            }
 
             var commandParser = commandParsers.FirstOrDefault(p => p.CommandName == args[0]);
 
