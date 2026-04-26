@@ -32,7 +32,7 @@ namespace PV286.Project.Tests
 
         private async Task<(int exitCode, string stdout, string stderr)> RunAppAsync(params string[] args)
         {
-            // ✅Prevent exit code leaking between tests
+            // Prevent exit code leaking between tests
             Environment.ExitCode = 0;
 
             var origOut = Console.Out;
@@ -68,10 +68,6 @@ namespace PV286.Project.Tests
                 Console.SetError(origErr);
             }
         }
-
-        // ─────────────────────────────
-        // SUCCESS CASES
-        // ─────────────────────────────
 
         [Test]
         [Category("Integration")]
@@ -183,10 +179,6 @@ namespace PV286.Project.Tests
             Assert.That(keys, Does.Contain("XPrv"));
             Assert.That(keys, Does.Contain("XPub"));
         }
-
-        // ─────────────────────────────
-        // VALIDATION FAILURES
-        // ─────────────────────────────
 
         [Test]
         [Category("Integration")]
