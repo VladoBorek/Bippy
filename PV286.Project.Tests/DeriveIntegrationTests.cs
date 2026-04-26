@@ -19,7 +19,7 @@ namespace PV286.Project.Tests
     {
         private const string SeedHex = "000102030405060708090a0b0c0d0e0f";
 
-        // ✅ Extract only the real output (ignore host lifecycle logs)
+        //  Extract only the real output (ignore host lifecycle logs)
         private static string ExtractKeys(string stdout) =>
             string.Join(
                 "\n",
@@ -32,7 +32,7 @@ namespace PV286.Project.Tests
 
         private async Task<(int exitCode, string stdout, string stderr)> RunAppAsync(params string[] args)
         {
-            // ✅ Prevent exit code leaking between tests
+            // ✅Prevent exit code leaking between tests
             Environment.ExitCode = 0;
 
             var origOut = Console.Out;
