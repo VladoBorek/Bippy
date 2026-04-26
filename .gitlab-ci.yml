@@ -17,26 +17,34 @@ variables:
 
 # ─── IMAGE ───────────────────────────────────────────────────────────────────
 
+debug_container_registry:
+  stage: image
+  image: alpine:3.20
+  tags:
+    - shared-fi
+  script:
+    - echo "CI_REGISTRY=$CI_REGISTRY"
+    - echo "CI_REGISTRY_IMAGE=$CI_REGISTRY_IMAGE"
+    - echo "CI_REGISTRY_USER=$CI_REGISTRY_USER"
+  rules:
+    - when: manual
+
 build_fuzz_image:
   stage: image
-  image: docker:27
-  services:
-    - docker:27-dind
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
   tags:
     - shared-fi
   variables:
-    DOCKER_TLS_CERTDIR: "/certs"
-    FUZZ_IMAGE: "registry.gitlab.fi.muni.cz/pv286/teams/team-33/dotnet-afl-sharpfuzz:latest"
+    FUZZ_IMAGE: "$CI_REGISTRY_IMAGE/dotnet-afl-sharpfuzz:latest"
   script:
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
-    - docker build -f .ci/Dockerfile.fuzz -t "$FUZZ_IMAGE" .
-    - docker push "$FUZZ_IMAGE"
+    - test -n "$CI_REGISTRY_IMAGE" || (echo "Container Registry is not enabled for this project." && exit 1)
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - /kaniko/executor --context "$CI_PROJECT_DIR" --dockerfile "$CI_PROJECT_DIR/.ci/Dockerfile.fuzz" --destination "$FUZZ_IMAGE"
   rules:
-    - if: $CI_COMMIT_BRANCH == "main"
-      changes:
-        - .ci/Dockerfile.fuzz
-        - .gitlab-ci.yml
-    - if: $CI_COMMIT_TAG
+    - when: manual
 
 
 # ─── BUILD ───────────────────────────────────────────────────────────────────
@@ -84,7 +92,9 @@ test_job:
 
 fuzz_job:
   stage: fuzz
-  image: registry.gitlab.fi.muni.cz/pv286/teams/team-33/dotnet-afl-sharpfuzz:latest
+  # image: gitlab.fi.muni.cz:5050/pv286/teams/team-33/dotnet-afl-sharpfuzz:latest
+  image: mcr.microsoft.com/dotnet/sdk:9.0
+
   allow_failure: true
   tags:
     - shared-fi
@@ -97,6 +107,10 @@ fuzz_job:
     AFL_NO_UI: "1"
     AFL_SKIP_BIN_CHECK: "1"
   script:
+    - apt-get update -qq
+    - apt-get install -y --no-install-recommends afl++
+    - dotnet tool install --global SharpFuzz.CommandLine --version 2.2.0
+    - export PATH="$PATH:$HOME/.dotnet/tools"
     - dotnet publish ./PV286.Project.Fuzz/PV286.Project.Fuzz.csproj -c Release -o ./fuzz-bin
     - sharpfuzz ./fuzz-bin/BusinessLayer.dll
     - sharpfuzz ./fuzz-bin/ResultPattern.dll
