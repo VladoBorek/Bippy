@@ -90,6 +90,13 @@ internal static class Program
             "derive", "--seed", ValidSeedHex, "--path", derivationPath, "--format", "hex"
         };
 
+        /*
+         * encode --entropy <fuzzed> --format hex
+         * decode <fuzzed> --format hex
+         * verify --phrase <fuzzed> --seed <fuzzed> --format hex
+         * derive --seed <fuzzed> --path <fuzzed> --format hex
+         */
+
         return new[]
         {
             rawCommand,

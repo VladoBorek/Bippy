@@ -26,7 +26,7 @@ build_fuzz_image:
     - shared-fi
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
-    FUZZ_IMAGE: "$CI_REGISTRY_IMAGE/dotnet-afl-sharpfuzz:latest"
+    FUZZ_IMAGE: "registry.gitlab.fi.muni.cz/pv286/teams/team-33/dotnet-afl-sharpfuzz:latest"
   script:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
     - docker build -f .ci/Dockerfile.fuzz -t "$FUZZ_IMAGE" .
@@ -84,7 +84,7 @@ test_job:
 
 fuzz_job:
   stage: fuzz
-  image: "$CI_REGISTRY_IMAGE/dotnet-afl-sharpfuzz:latest"
+  image: image: registry.gitlab.fi.muni.cz/pv286/teams/team-33/dotnet-afl-sharpfuzz:latest
   allow_failure: true
   tags:
     - shared-fi
