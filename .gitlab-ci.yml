@@ -84,7 +84,7 @@ test_job:
 
 fuzz_job:
   stage: fuzz
-  image: image: registry.gitlab.fi.muni.cz/pv286/teams/team-33/dotnet-afl-sharpfuzz:latest
+  image: registry.gitlab.fi.muni.cz/pv286/teams/team-33/dotnet-afl-sharpfuzz:latest
   allow_failure: true
   tags:
     - shared-fi
