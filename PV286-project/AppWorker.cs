@@ -109,6 +109,12 @@ public class AppWorker : BackgroundService
 
         foreach (var line in lines)
         {
+            if (String.IsNullOrEmpty(line))
+            {
+                await Console.Error.WriteLineAsync($"Invocation failed: Empty batch processing command \n");
+                continue;
+            }
+
             if (!ExecuteLine(line))
             {
                 allSucceeded = false;
@@ -145,6 +151,6 @@ public class AppWorker : BackgroundService
     private IEnumerable<string> ReadStdinLines()
     {
         var afterBatchArgs = string.Join(" ", consoleArgs.args.Skip(2));
-        return afterBatchArgs.Split(StdinDelimiter, StringSplitOptions.RemoveEmptyEntries);
+        return afterBatchArgs.Split(StdinDelimiter, StringSplitOptions.TrimEntries);
     }
 }
