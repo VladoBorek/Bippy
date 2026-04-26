@@ -1,14 +1,14 @@
-using BusinessLayer.Cli.Utils.Enums;
+using BusinessLayer.Cli.Utils;
+using BusinessLayer.Cli.Utils.Parser;
 using BusinessLayer.Services.Interfaces;
 using ResultPattern;
-using BusinessLayer.Cli.Utils;
-using BusinessLayer.Cli.Commands;
 
 namespace BusinessLayer.Cli.Commands.Decode
 {
-    public class DecodeParser : ICliParser
+
+    public class DecodeParser : CmdParser
     {
-        public string CommandName => "decode";
+        public override string CommandName => "decode";
         private readonly IDecodeService decodeService;
 
         public DecodeParser(IDecodeService decodeService)
@@ -16,50 +16,20 @@ namespace BusinessLayer.Cli.Commands.Decode
             this.decodeService = decodeService;
         }
 
-        public Result<ICliCommand> Parse(string[] args)
+
+        protected override FlagParser FlagParser() => new FlagParser("decode")
+            .Add("--words", required: true)
+            .Add("--format", defaultValue: "hex");
+
+        protected override Result<ICliCommand> Build(ParsedArgs opts)
         {
-            if (args.Length == 0)
-                return Result.Fail<ICliCommand>("No mnemonic phrase provided for 'decode'.");
+            var wordsResult = opts.Get("--words");
+            if (wordsResult.IsFailed) return Result.Fail<ICliCommand>(wordsResult);
 
-            string? phrase = null;
-            ValueFormat format = ValueFormat.Hex; 
+            var formatResult = opts.GetParsed("--format", ParserUtils.ParseFormat);
+            if (formatResult.IsFailed) return Result.Fail<ICliCommand>(formatResult);
 
-            for (int i = 0; i < args.Length; i++)
-            {
-                switch (args[i])
-                {
-                    case "--format":
-                        var formatResult = ParseFormat(args, ref i, out format);
-                        if (formatResult.IsFailed)
-                            return Result.Fail<ICliCommand>(formatResult);
-                        break;
-
-                    default:
-                        phrase = (phrase == null) ? args[i] : $"{phrase} {args[i]}";
-                        break;
-                }
-            }
-
-            if (phrase == null)
-                return Result.Fail<ICliCommand>("No mnemonic phrase provided for 'decode'.");
-
-            return Result.Ok<ICliCommand>(new DecodeCommand(phrase, format, decodeService));
-        }
-
-        private static Result ParseFormat(string[] args, ref int i, out ValueFormat format)
-        {
-            format = ValueFormat.Hex;
-
-            var formatValueResult = ParserUtils.GetRequiredValue(args, ref i, "--format");
-            if (formatValueResult.IsFailed)
-                return Result.Fail(formatValueResult);
-
-            var parseResult = ParserUtils.ParseFormat(formatValueResult.Value);
-            if (parseResult.IsFailed)
-                return Result.Fail(parseResult);
-
-            format = parseResult.Value;
-            return Result.Ok();
+            return Result.Ok<ICliCommand>(new DecodeCommand(wordsResult.Value, formatResult.Value, decodeService));
         }
     }
 }

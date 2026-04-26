@@ -13,7 +13,7 @@ namespace BusinessLayer.Cli.Commands.Help
 
                 Usage:
                   Bippy encode [--entropy <value> --format <hex|bin>]
-                  Bippy decode <mnemonic phrase> [--format <hex|bin>]
+                  Bippy decode --words <mnemonic phrase> [--format <hex|bin>]
                   Bippy verify --phrase <mnemonic phrase> --seed <value> [--format <hex|bin>]
                   Bippy batch <filepath|->
                   Bippy --help

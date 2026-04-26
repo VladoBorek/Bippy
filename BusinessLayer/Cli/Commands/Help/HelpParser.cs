@@ -1,12 +1,15 @@
-﻿using ResultPattern;
+﻿using BusinessLayer.Cli.Utils.Parser;
+using ResultPattern;
 
 namespace BusinessLayer.Cli.Commands.Help
 {
-    public class HelpParser : ICliParser
+    public class HelpParser : CmdParser
     {
-        public string CommandName => "help";
+        public override string CommandName => "help";
 
-        public Result<ICliCommand> Parse(string[] args)
+        protected override FlagParser FlagParser() => new FlagParser("help");
+
+        protected override Result<ICliCommand> Build(ParsedArgs opts)
         {
             return Result.Ok<ICliCommand>(new HelpCommand());
         }

@@ -1,15 +1,14 @@
-﻿using BusinessLayer.Cli.Utils;
+using BusinessLayer.Cli.Utils;
 using BusinessLayer.Cli.Utils.Enums;
-using BusinessLayer.Cli.Validators;
-using BusinessLayer.Services;
+using BusinessLayer.Cli.Utils.Parser;
 using BusinessLayer.Services.Interfaces;
 using ResultPattern;
 
 namespace BusinessLayer.Cli.Commands.Encode
 {
-    public class EncodeParser : ICliParser
+    public class EncodeParser : CmdParser
     {
-        public string CommandName => "encode";
+        public override string CommandName => "encode";
         private readonly IEncodeService encodeService;
 
         public EncodeParser(IEncodeService encodeService)
@@ -17,83 +16,32 @@ namespace BusinessLayer.Cli.Commands.Encode
             this.encodeService = encodeService;
         }
 
-        public Result<ICliCommand> Parse(string[] args)
+
+        protected override FlagParser FlagParser() => new FlagParser("encode")
+            .Add("--entropy")
+            .Add("--format");
+
+        protected override Result<ICliCommand> Build(ParsedArgs opts)
         {
-            string? entropy = null;
+            var entropyResult = opts.Get("--entropy");
+            var entropy = entropyResult.IsFailed ? null : entropyResult.Value;
+
+            var formatResult = opts.Get("--format");
+            var formatProvided = !formatResult.IsFailed;
+
             ValueFormat format = ValueFormat.Hex;
-            bool formatProvided = false;
-            byte[]? entropyBytes = null;
-
-            for (int i = 0; i < args.Length; i++)
+            if (formatProvided)
             {
-                var result = args[i] switch
-                {
-                    "--entropy" => ParseEntropy(args, ref i, out entropy),
-                    "--format" => ParseFormat(args, ref i, out format, out formatProvided),
-                    _ => Result.Fail($"Unrecognized option '{args[i]}' for 'encode'.")
-                };
-
-                if (result.IsFailed)
-                    return Result.Fail<ICliCommand>(result);
+                var parsedFormat = ParserUtils.ParseFormat(formatResult.Value);
+                if (parsedFormat.IsFailed) return Result.Fail<ICliCommand>(parsedFormat);
+                format = parsedFormat.Value;
             }
 
-            var encodeValidationResult = EncodeValidator.IsValidEncode(
-                entropy,
-                formatProvided,
-                format
-            );
-            if (encodeValidationResult.IsFailed)
-            {
-                return Result.Fail<ICliCommand>(encodeValidationResult);
-            }
+            var validation = BusinessLayer.Cli.Validators.EncodeValidator.IsValidEncode(entropy, formatProvided, format);
+            if (validation.IsFailed) return Result.Fail<ICliCommand>(validation);
 
-            entropyBytes = StringEntropyToBytes(entropy, format);
-
+            var entropyBytes = entropy == null ? null : ParserUtils.ParseBytes(entropy, format);
             return Result.Ok<ICliCommand>(new EncodeCommand(entropyBytes, format, encodeService));
         }
-
-        private static byte[]? StringEntropyToBytes(string? entropy, ValueFormat format)
-        {
-            if (entropy is null)
-                return null;
-
-            return format == ValueFormat.Hex
-                ? Convert.FromHexString(entropy)
-                : Enumerable
-                    .Range(0, entropy.Length / 8)
-                    .Select(i => Convert.ToByte(entropy.Substring(i * 8, 8), 2))
-                    .ToArray();
-        }
-
-        private static Result ParseEntropy(string[] args, ref int i, out string? entropy)
-        {
-            entropy = null;
-
-            var entropyResult = ParserUtils.GetRequiredValue(args, ref i, "--entropy");
-            if (entropyResult.IsFailed)
-                return Result.Fail(entropyResult);
-
-            entropy = entropyResult.Value;
-            return Result.Ok();
-        }
-
-        private static Result ParseFormat(string[] args, ref int i, out ValueFormat format, out bool formatProvided)
-        {
-            format = ValueFormat.Hex;
-            formatProvided = false;
-
-            var FormatValueResult = ParserUtils.GetRequiredValue(args, ref i, "--format");
-            if (FormatValueResult.IsFailed)
-                return Result.Fail(FormatValueResult);
-
-            var formatResult = ParserUtils.ParseFormat(FormatValueResult.Value);
-            if (formatResult.IsFailed)
-                return Result.Fail(formatResult);
-
-            format = formatResult.Value;
-            formatProvided = true;
-            return Result.Ok();
-        }
-
     }
 }

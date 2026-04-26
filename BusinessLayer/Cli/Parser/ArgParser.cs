@@ -6,28 +6,26 @@ namespace BusinessLayer.Cli.Parser
 {
     public class ArgParser : IArgParser
     {
-        private readonly IEnumerable<ICliParser> commandParsers;
+        private readonly IReadOnlyDictionary<string, CmdParser> handlers;
 
-        public ArgParser(IEnumerable<ICliParser> commandParsers)
+        public ArgParser(IEnumerable<CmdParser> handlers)
         {
-            this.commandParsers = commandParsers;
+            this.handlers = handlers.ToDictionary(h => h.CommandName);
         }
 
         public Result<ICliCommand> Parse(string[] args)
         {
             if (args.Length == 0 || args[0] == "--help")
             {
-                if(args.Length > 1) return Result.Fail<ICliCommand>("The '--help' flag cannot be used with other arguments.");
-                
+                if (args.Length > 1)
+                    return Result.Fail<ICliCommand>("The '--help' flag cannot be used with other arguments.");
                 return Result.Ok<ICliCommand>(new HelpCommand());
             }
 
-            var commandParser = commandParsers.FirstOrDefault(p => p.CommandName == args[0]);
-
-            if (commandParser is null)
+            if (!handlers.TryGetValue(args[0], out var handler))
                 return Result.Fail<ICliCommand>($"Unrecognized command '{args[0]}'.");
 
-            return commandParser.Parse(args.Skip(1).ToArray());
+            return handler.Parse(args[1..]);
         }
     }
 }

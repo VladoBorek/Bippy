@@ -1,14 +1,13 @@
 using BusinessLayer.Cli.Utils;
-using BusinessLayer.Cli.Utils.Enums;
+using BusinessLayer.Cli.Utils.Parser;
 using BusinessLayer.Services.Interfaces;
 using ResultPattern;
 
 namespace BusinessLayer.Cli.Commands.Derive
 {
-    public class DeriveParser : ICliParser
+    public class DeriveParser : CmdParser
     {
-        public string CommandName => "derive";
-
+        public override string CommandName => "derive";
         private readonly IDeriveService deriveService;
 
         public DeriveParser(IDeriveService deriveService)
@@ -16,69 +15,34 @@ namespace BusinessLayer.Cli.Commands.Derive
             this.deriveService = deriveService;
         }
 
-        public Result<ICliCommand> Parse(string[] args)
+
+        protected override FlagParser FlagParser() => new FlagParser("derive")
+            .Add("--entropy")
+            .Add("--seed")
+            .Add("--path")
+            .Add("--format", defaultValue: "hex");
+
+        protected override Result<ICliCommand> Build(ParsedArgs opts)
         {
-            string? entropy = null;
-            string? seed = null;
-            string? path = null;
+            var formatResult = opts.GetParsed("--format", ParserUtils.ParseFormat);
+            if (formatResult.IsFailed) return Result.Fail<ICliCommand>(formatResult);
 
-            ValueFormat format = ValueFormat.Hex;
+            var entropyResult = opts.Get("--entropy");
+            var entropy = entropyResult.IsFailed ? null : entropyResult.Value;
 
-            for (int i = 0; i < args.Length; i++)
-            {
-                var result = args[i] switch
-                {
-                    "--entropy" => ParseValue(args, ref i, out entropy),
-                    "--seed"   => ParseValue(args, ref i, out seed),
-                    "--path"   => ParseValue(args, ref i, out path),
-                    "--format" => ParseFormat(args, ref i, out format),
-                    _ => Result.Fail($"Unrecognized option '{args[i]}' for 'derive'.")
-                };
+            var seedResult = opts.Get("--seed");
+            var seed = seedResult.IsFailed ? null : seedResult.Value;
 
-                if (result.IsFailed)
-                    return Result.Fail<ICliCommand>(result);
-            }
+            var pathResult = opts.Get("--path");
+            var path = pathResult.IsFailed ? null : pathResult.Value;
 
-            return Result.Ok<ICliCommand>(
-                new DeriveCommand(
-                    entropy,
-                    seed,
-                    path,
-                    format,
-                    deriveService
-                )
-            );
-        }
-
-        private static Result ParseValue(string[] args, ref int i, out string? value)
-        {
-            value = null;
-
-            var valueResult = ParserUtils.GetRequiredValue(args, ref i, args[i]);
-            if (valueResult.IsFailed)
-                return Result.Fail(valueResult);
-
-            value = valueResult.Value;
-            return Result.Ok();
-        }
-
-        private static Result ParseFormat(
-            string[] args,
-            ref int i,
-            out ValueFormat format)
-        {
-            format = ValueFormat.Hex;
-
-            var formatValueResult = ParserUtils.GetRequiredValue(args, ref i, "--format");
-            if (formatValueResult.IsFailed)
-                return Result.Fail(formatValueResult);
-
-            var parseResult = ParserUtils.ParseFormat(formatValueResult.Value);
-            if (parseResult.IsFailed)
-                return Result.Fail(parseResult);
-
-            format = parseResult.Value;
-            return Result.Ok();
+            return Result.Ok<ICliCommand>(new DeriveCommand(
+                entropy,
+                seed,
+                path,
+                formatResult.Value,
+                deriveService
+            ));
         }
     }
 }
