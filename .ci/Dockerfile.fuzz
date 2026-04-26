@@ -1,0 +1,9 @@
+FROM mcr.microsoft.com/dotnet/sdk:9.0
+
+RUN apt-get update -qq \
+    && apt-get install -y --no-install-recommends afl++ \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN dotnet tool install --global SharpFuzz.CommandLine --version 2.2.0
+
+ENV PATH="${PATH}:/root/.dotnet/tools"

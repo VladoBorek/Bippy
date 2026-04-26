@@ -1,6 +1,7 @@
 image: mcr.microsoft.com/dotnet/sdk:9.0
 
 stages:
+  - image
   - build
   - test
   - fuzz
@@ -13,6 +14,30 @@ variables:
   COVERAGE_MIN_LINE: "80"
   COVERAGE_MIN_BRANCH: "70"
   TRACE_CLI_ARGS: "encode --entropy 78ba6f96c8a70f71c4acff1c9dc7b35d8988734180d9502eeada775b7cca103e --format hex"
+
+# ─── IMAGE ───────────────────────────────────────────────────────────────────
+
+build_fuzz_image:
+  stage: image
+  image: docker:27
+  services:
+    - docker:27-dind
+  tags:
+    - shared-fi
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+    FUZZ_IMAGE: "$CI_REGISTRY_IMAGE/dotnet-afl-sharpfuzz:latest"
+  script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+    - docker build -f .ci/Dockerfile.fuzz -t "$FUZZ_IMAGE" .
+    - docker push "$FUZZ_IMAGE"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      changes:
+        - .ci/Dockerfile.fuzz
+        - .gitlab-ci.yml
+    - if: $CI_COMMIT_TAG
+
 
 # ─── BUILD ───────────────────────────────────────────────────────────────────
 
@@ -59,7 +84,7 @@ test_job:
 
 fuzz_job:
   stage: fuzz
-  image: mcr.microsoft.com/dotnet/sdk:9.0
+  image: "$CI_REGISTRY_IMAGE/dotnet-afl-sharpfuzz:latest"
   allow_failure: true
   tags:
     - shared-fi
@@ -72,10 +97,6 @@ fuzz_job:
     AFL_NO_UI: "1"
     AFL_SKIP_BIN_CHECK: "1"
   script:
-    - apt-get update -qq
-    - apt-get install -y --no-install-recommends afl++ clang make
-    - dotnet tool install --global SharpFuzz.CommandLine --version 2.2.0
-    - export PATH="$PATH:$HOME/.dotnet/tools"
     - dotnet publish ./PV286.Project.Fuzz/PV286.Project.Fuzz.csproj -c Release -o ./fuzz-bin
     - sharpfuzz ./fuzz-bin/BusinessLayer.dll
     - sharpfuzz ./fuzz-bin/ResultPattern.dll
