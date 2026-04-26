@@ -1,6 +1,7 @@
 ﻿using BusinessLayer.Cli.Commands.Decode;
 using BusinessLayer.Cli.Commands.Verify;
 using BusinessLayer.Cli.Commands;
+using BusinessLayer.Cli.Commands.Derive;
 using BusinessLayer.Cli.Commands.Encode;
 using BusinessLayer.Cli.Commands.Help;
 using BusinessLayer.Cli.Parser;
@@ -44,6 +45,7 @@ namespace PV286_project
                         services.AddSingleton<IEncodeService, EncodeService>();
                         services.AddSingleton<IDecodeService, DecodeService>();
                         services.AddSingleton<IVerifyService, VerifyService>();
+                        services.AddSingleton<IDeriveService, DeriveService>();
 
 
                         services.AddSingleton<ICliParser, EncodeParser>();
@@ -51,6 +53,7 @@ namespace PV286_project
                         services.AddSingleton<ICliParser, VerifyParser>();
                         services.AddSingleton<ICliParser, HelpParser>();
                         services.AddSingleton<IArgParser, ArgParser>();
+                        services.AddSingleton<ICliParser, DeriveParser>();
 
                         // AppWorker is the application's main entry point via IHostedService.
                         // The host starts it, awaits its completion, then shuts down cleanly.
