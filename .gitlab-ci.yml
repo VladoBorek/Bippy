@@ -39,13 +39,12 @@ build_fuzz_image:
   variables:
     FUZZ_IMAGE: "$CI_REGISTRY/pv286/teams/team-33/dotnet-afl-sharpfuzz:latest"
   script:
-    - test -n "$CI_REGISTRY_IMAGE" || (echo "Container Registry is not enabled for this project." && exit 1)
+    - test -n "$CI_REGISTRY" || (echo "Container Registry is not available." && exit 1)
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
     - /kaniko/executor --context "$CI_PROJECT_DIR" --dockerfile "$CI_PROJECT_DIR/.ci/Dockerfile.fuzz" --destination "$FUZZ_IMAGE"
   rules:
     - when: manual
-
 
 # ─── BUILD ───────────────────────────────────────────────────────────────────
 
