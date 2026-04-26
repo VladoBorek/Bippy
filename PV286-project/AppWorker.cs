@@ -1,4 +1,5 @@
-﻿using BusinessLayer.Cli.Parser;
+using BusinessLayer.Cli.Commands.Help;
+using BusinessLayer.Cli.Parser;
 using BusinessLayer.Services;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -62,12 +63,18 @@ public class AppWorker : BackgroundService
         }
     }
 
-    private bool Run(string[] args)
+    private bool Run(string[] args, bool isBatchContext = false)
     {
         var parsedCommandRes = argParser.Parse(args);
         if (parsedCommandRes.IsFailed)
         {
             Console.Error.WriteLine(parsedCommandRes.Error);
+            return false;
+        }
+
+        if (isBatchContext && parsedCommandRes.Value is HelpCommand)
+        {
+            Console.Error.WriteLine("Batch processing cannot execute help commands. \n");
             return false;
         }
 
@@ -129,7 +136,7 @@ public class AppWorker : BackgroundService
     private bool ExecuteLine(string line)
     {
         var lineArgs = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        return Run(lineArgs);
+        return Run(lineArgs, isBatchContext: true);
     }
 
     private static async Task<IEnumerable<string>> ReadFileLines(string source)

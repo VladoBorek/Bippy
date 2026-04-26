@@ -280,7 +280,6 @@ namespace PV286.Project.Tests
         [Category("Integration")]
         public async Task Batch_Inline_ManyCommands_MixedSuccessAndFailure()
         {
-            // A very large inline batch with mixed valid + invalid commands
             string batch =
                 "encode --format hex | " + // valid
                 "encode --format bin | " + // valid
@@ -343,6 +342,81 @@ namespace PV286.Project.Tests
 
             Assert.That(stdout + stderr, Does.Contain("Unrecognized option '--bad-flag'").IgnoreCase);
             Assert.That(stdout + stderr, Does.Contain("hex").IgnoreCase);
+        }
+
+        [Test]
+        [Category("Integration")]
+        public async Task Batch_Inline_EmptyCells_Fails()
+        {
+            var (code, stdout, stderr) = await RunAppAsync("batch", "-", "|encode|||encode|");
+            Assert.That(code, Is.EqualTo(0));
+            Assert.That(stdout + stderr, Does.Contain("Empty batch processing command").IgnoreCase);
+
+            var (code2, stdout2, stderr2) = await RunAppAsync("batch", "-", "encode | | |");
+            Assert.That(code2, Is.EqualTo(0));
+            Assert.That(stdout2 + stderr2, Does.Contain("Empty batch processing command").IgnoreCase);
+        }
+
+        [Test]
+        [Category("Integration")]
+        public async Task Help_WithOtherArgs_Fails()
+        {
+            var (code, stdout, stderr) = await RunAppAsync("--help", "verify", "--phrase", "judge square toss mule ill rib bargain paper broken until under roast obtain defy alcohol brass expand jar repair upgrade result govern domain solid", "--seed", "897f9beefb28fa6660e65a6b77518547d1bf8ad203cae84cf5614174fce86d8c8329547779a319090c4557fd330b36b294a1cc9bcaaf5c3f2b48eefbe5142340");
+            Assert.That(code, Is.Not.EqualTo(0));
+            Assert.That(stdout + stderr, Does.Contain("cannot be used with other arguments").IgnoreCase);
+        }
+
+        [TestCase("C:\\")]
+        [TestCase("nul")]
+        [TestCase(" ")]
+        [TestCase("/")]
+        [TestCase("")]
+        [Category("Integration")]
+        public async Task Batch_InvalidPath_Fails(string path)
+        {
+            var (code, stdout, stderr) = await RunAppAsync("batch", path);
+            Assert.That(code, Is.Not.EqualTo(0));
+            Assert.That(stdout + stderr, Does.Contain("does not exist").IgnoreCase);
+        }
+
+        [Test]
+        [Category("Integration")]
+        public async Task Batch_MultipleInvalidArgs_Fails()
+        {
+            var (code, stdout, stderr) = await RunAppAsync("batch", " ", " ");
+            Assert.That(code, Is.Not.EqualTo(0));
+            Assert.That(stdout + stderr, Does.Contain("does not exist").IgnoreCase);
+
+            var (code2, stdout2, stderr2) = await RunAppAsync("batch", " ", "asdf");
+            Assert.That(code2, Is.Not.EqualTo(0));
+            Assert.That(stdout2 + stderr2, Does.Contain("does not exist").IgnoreCase);
+        }
+
+        [Test]
+        [Category("Integration")]
+        public async Task Batch_DuplicateFlags_Fails()
+        {
+            var (code, stdout, stderr) = await RunAppAsync("batch", "-", "encode --format bin --format hex");
+            Assert.That(code, Is.Not.EqualTo(0));
+            Assert.That(stdout + stderr, Does.Contain("Duplicate flag '--format'").IgnoreCase);
+        }
+
+        [Test]
+        [Category("Integration")]
+        public async Task Encode_DuplicateFlags_Fails()
+        {
+            var (code, stdout, stderr) = await RunAppAsync("encode", "--entropy", "78ba6f96c8a70f71c4acff1c9dc7b35d8988734180d9502eeada775b7cca103e", "--entropy", "78ba6f96c8a70f71c4acff1c9dc7b35d8988734180d9502eeada775b7cca103e", "--format", "hex");
+            Assert.That(code, Is.Not.EqualTo(0));
+            Assert.That(stdout + stderr, Does.Contain("Duplicate flag '--entropy'").IgnoreCase);
+        }
+
+        [Test]
+        [Category("Integration")]
+        public async Task Batch_Inline_Help_Fails()
+        {
+            var (code, stdout, stderr) = await RunAppAsync("batch", "-", "--help | --help");
+            Assert.That(code, Is.Not.EqualTo(0));
+            Assert.That(stdout + stderr, Does.Contain("cannot execute help commands").IgnoreCase);
         }
     }
 }
