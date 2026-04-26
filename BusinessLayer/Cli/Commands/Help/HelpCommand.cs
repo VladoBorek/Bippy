@@ -1,4 +1,4 @@
-namespace BusinessLayer.CLI.Commands.Help
+namespace BusinessLayer.Cli.Commands.Help
 {
     public class HelpCommand : ICliCommand
     {

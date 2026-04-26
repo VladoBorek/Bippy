@@ -1,5 +1,5 @@
 using BusinessLayer.DTOs;
-using BusinessLayer.CLI.Utils.Enums;
+using BusinessLayer.Cli.Utils.Enums;
 using NBitcoin;
 
 namespace PV286.Project.Tests

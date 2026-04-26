@@ -1,5 +1,5 @@
-using BusinessLayer.CLI.Commands;
-using BusinessLayer.CLI.Utils.Enums;
+using BusinessLayer.Cli.Commands;
+using BusinessLayer.Cli.Utils.Enums;
 using BusinessLayer.Services.Interfaces;
 
 namespace BusinessLayer.Cli.Commands.Decode

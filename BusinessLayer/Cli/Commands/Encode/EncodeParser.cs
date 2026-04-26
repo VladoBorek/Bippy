@@ -1,11 +1,11 @@
-﻿using BusinessLayer.CLI.Utils;
-using BusinessLayer.CLI.Utils.Enums;
-using BusinessLayer.CLI.Validators;
+﻿using BusinessLayer.Cli.Utils;
+using BusinessLayer.Cli.Utils.Enums;
+using BusinessLayer.Cli.Validators;
 using BusinessLayer.Services;
 using BusinessLayer.Services.Interfaces;
 using ResultPattern;
 
-namespace BusinessLayer.CLI.Commands.Encode
+namespace BusinessLayer.Cli.Commands.Encode
 {
     public class EncodeParser : ICliParser
     {

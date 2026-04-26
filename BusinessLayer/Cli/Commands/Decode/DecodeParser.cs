@@ -1,8 +1,8 @@
-using BusinessLayer.CLI.Utils.Enums;
+using BusinessLayer.Cli.Utils.Enums;
 using BusinessLayer.Services.Interfaces;
 using ResultPattern;
-using BusinessLayer.CLI.Utils;
-using BusinessLayer.CLI.Commands;
+using BusinessLayer.Cli.Utils;
+using BusinessLayer.Cli.Commands;
 
 namespace BusinessLayer.Cli.Commands.Decode
 {

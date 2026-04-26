@@ -1,5 +1,5 @@
-using BusinessLayer.CLI.Commands.Encode;
-using BusinessLayer.CLI.Utils.Enums;
+using BusinessLayer.Cli.Commands.Encode;
+using BusinessLayer.Cli.Utils.Enums;
 using BusinessLayer.DTOs;
 using BusinessLayer.Services;
 using BusinessLayer.Services.Interfaces;

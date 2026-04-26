@@ -1,8 +1,8 @@
-﻿using BusinessLayer.CLI.Utils.Enums;
+﻿using BusinessLayer.Cli.Utils.Enums;
 using BusinessLayer.Services;
 using BusinessLayer.Services.Interfaces;
 
-namespace BusinessLayer.CLI.Commands.Encode
+namespace BusinessLayer.Cli.Commands.Encode
 {
     public class EncodeCommand : ICliCommand
     {

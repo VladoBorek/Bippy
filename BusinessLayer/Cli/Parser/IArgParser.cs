@@ -1,7 +1,7 @@
-﻿using BusinessLayer.CLI.Commands;
+﻿using BusinessLayer.Cli.Commands;
 using ResultPattern;
 
-namespace BusinessLayer.CLI.Parser
+namespace BusinessLayer.Cli.Parser
 {
     public interface IArgParser
     {

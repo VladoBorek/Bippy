@@ -1,5 +1,5 @@
-using BusinessLayer.CLI.Utils;
-using BusinessLayer.CLI.Utils.Enums;
+using BusinessLayer.Cli.Utils;
+using BusinessLayer.Cli.Utils.Enums;
 
 namespace PV286.Project.Tests;
 

@@ -1,8 +1,8 @@
 ﻿using BusinessLayer.Cli.Validators;
-using BusinessLayer.CLI.Commands;
-using BusinessLayer.CLI.Utils;
-using BusinessLayer.CLI.Utils.Enums;
-using BusinessLayer.CLI.Validators;
+using BusinessLayer.Cli.Commands;
+using BusinessLayer.Cli.Utils;
+using BusinessLayer.Cli.Utils.Enums;
+using BusinessLayer.Cli.Validators;
 using BusinessLayer.Services;
 using BusinessLayer.Services.Interfaces;
 using ResultPattern;

@@ -1,4 +1,4 @@
-﻿namespace BusinessLayer.CLI.Validators
+﻿namespace BusinessLayer.Cli.Validators
 {
     public static class ValidatorUtils
     {

@@ -1,5 +1,5 @@
-﻿using BusinessLayer.CLI.Utils.Enums;
-using BusinessLayer.CLI.Validators;
+﻿using BusinessLayer.Cli.Utils.Enums;
+using BusinessLayer.Cli.Validators;
 using ResultPattern;
 using System;
 using System.Collections.Generic;

@@ -1,4 +1,4 @@
-﻿namespace BusinessLayer.CLI.Commands
+﻿namespace BusinessLayer.Cli.Commands
 {
     public interface ICliCommand
     {

@@ -1,7 +1,7 @@
 using Moq;
-using BusinessLayer.CLI.Parser;
-using BusinessLayer.CLI.Commands;
-using BusinessLayer.CLI.Commands.Help;
+using BusinessLayer.Cli.Parser;
+using BusinessLayer.Cli.Commands;
+using BusinessLayer.Cli.Commands.Help;
 using ResultPattern;
 
 namespace PV286.Project.Tests

@@ -1,4 +1,4 @@
-using BusinessLayer.CLI.Validators;
+using BusinessLayer.Cli.Validators;
 
 namespace PV286.Project.Tests;
 

@@ -1,4 +1,4 @@
-﻿using BusinessLayer.CLI.Commands;
+﻿using BusinessLayer.Cli.Commands;
 using BusinessLayer.Services.Interfaces;
 using System;
 using System.Collections.Generic;

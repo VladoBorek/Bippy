@@ -1,4 +1,4 @@
-﻿using BusinessLayer.CLI.Utils.Enums;
+﻿using BusinessLayer.Cli.Utils.Enums;
 using BusinessLayer.DTOs;
 using BusinessLayer.Services.Interfaces;
 using NBitcoin;

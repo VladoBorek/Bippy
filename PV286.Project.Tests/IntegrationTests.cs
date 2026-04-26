@@ -2,9 +2,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-using BusinessLayer.CLI.Parser;
-using BusinessLayer.CLI.Commands;           
-using BusinessLayer.CLI.Commands.Encode;     
+using BusinessLayer.Cli.Parser;
+using BusinessLayer.Cli.Commands;           
+using BusinessLayer.Cli.Commands.Encode;     
 using BusinessLayer.Services;                
 using BusinessLayer.Services.Interfaces;     
 using PV286_project;                        

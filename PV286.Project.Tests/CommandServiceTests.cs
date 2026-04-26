@@ -1,5 +1,5 @@
 using BusinessLayer.Services;
-using BusinessLayer.CLI.Utils.Enums;
+using BusinessLayer.Cli.Utils.Enums;
 using NBitcoin;
 
 

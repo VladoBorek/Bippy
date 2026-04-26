@@ -1,9 +1,9 @@
 ﻿using BusinessLayer.Cli.Commands.Decode;
 using BusinessLayer.Cli.Commands.Verify;
-using BusinessLayer.CLI.Commands;
-using BusinessLayer.CLI.Commands.Encode;
-using BusinessLayer.CLI.Commands.Help;
-using BusinessLayer.CLI.Parser;
+using BusinessLayer.Cli.Commands;
+using BusinessLayer.Cli.Commands.Encode;
+using BusinessLayer.Cli.Commands.Help;
+using BusinessLayer.Cli.Parser;
 using BusinessLayer.Services;
 using BusinessLayer.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;

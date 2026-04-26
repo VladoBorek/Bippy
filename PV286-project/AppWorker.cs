@@ -1,4 +1,4 @@
-﻿using BusinessLayer.CLI.Parser;
+﻿using BusinessLayer.Cli.Parser;
 using BusinessLayer.Services;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

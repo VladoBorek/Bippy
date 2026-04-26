@@ -1,7 +1,7 @@
-﻿using BusinessLayer.CLI.Utils.Enums;
+﻿using BusinessLayer.Cli.Utils.Enums;
 using ResultPattern;
 
-namespace BusinessLayer.CLI.Validators
+namespace BusinessLayer.Cli.Validators
 {
     public static class EntropyValidator
     {
