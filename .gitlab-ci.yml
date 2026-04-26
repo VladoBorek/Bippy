@@ -57,7 +57,7 @@ test_job:
 
 # ─── FUZZING  ─────────────────────────────────────────────────────────────────
 
-fuzz_cli:
+fuzz_job:
   stage: fuzz
   image: mcr.microsoft.com/dotnet/sdk:9.0
   allow_failure: true
@@ -70,6 +70,7 @@ fuzz_cli:
     AFL_SKIP_CPUFREQ: "1"
     AFL_I_DONT_CARE_ABOUT_MISSING_CRASHES: "1"
     AFL_NO_UI: "1"
+    AFL_SKIP_BIN_CHECK: "1"
   script:
     - apt-get update -qq
     - apt-get install -y --no-install-recommends afl++ clang make
@@ -83,14 +84,14 @@ fuzz_cli:
     - timeout 120s afl-fuzz -i ./PV286.Project.Fuzz/Testcases -o ./fuzz-findings -x ./PV286.Project.Fuzz/cli.dict -t 10000 -m none -- dotnet ./fuzz-bin/PV286.Project.Fuzz.dll
     - status=$?
     - set -e
-    - if [ "$status" -ne 0 ] && [ "$status" -ne 124 ]; then exit "$status"; fi
     - |
-      if find ./fuzz-findings -path "*/crashes/id:*" -type f | grep -q .; then
-        echo "WARNING: Fuzzing found crashes. See fuzz-findings artifact."
-        find ./fuzz-findings -path "*/crashes/id:*" -type f
-      else
-        echo "Fuzzing completed without crashes."
+      if [ "$status" -eq 124 ]; then
+        echo "Fuzzing finished after the configured timeout."
+      elif [ "$status" -ne 0 ]; then
+        echo "Fuzzing command failed with exit code $status."
+        exit "$status"
       fi
+
   artifacts:
     when: always
     paths:
