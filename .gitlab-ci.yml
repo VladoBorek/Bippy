@@ -1,7 +1,6 @@
 image: mcr.microsoft.com/dotnet/sdk:9.0
 
 stages:
-  - image
   - build
   - test
   - fuzz
@@ -14,37 +13,6 @@ variables:
   COVERAGE_MIN_LINE: "80"
   COVERAGE_MIN_BRANCH: "70"
   TRACE_CLI_ARGS: "encode --entropy 78ba6f96c8a70f71c4acff1c9dc7b35d8988734180d9502eeada775b7cca103e --format hex"
-
-# ─── IMAGE ───────────────────────────────────────────────────────────────────
-
-debug_container_registry:
-  stage: image
-  image: alpine:3.20
-  tags:
-    - shared-fi
-  script:
-    - echo "CI_REGISTRY=$CI_REGISTRY"
-    - echo "CI_REGISTRY_IMAGE=$CI_REGISTRY_IMAGE"
-    - echo "CI_REGISTRY_USER=$CI_REGISTRY_USER"
-  rules:
-    - when: manual
-
-build_fuzz_image:
-  stage: image
-  image:
-    name: gcr.io/kaniko-project/executor:debug
-    entrypoint: [""]
-  tags:
-    - shared-fi
-  variables:
-    FUZZ_IMAGE: "$CI_REGISTRY/pv286/teams/team-33/dotnet-afl-sharpfuzz:latest"
-  script:
-    - test -n "$CI_REGISTRY" || (echo "Container Registry is not available." && exit 1)
-    - mkdir -p /kaniko/.docker
-    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
-    - /kaniko/executor --context "$CI_PROJECT_DIR" --dockerfile "$CI_PROJECT_DIR/.ci/Dockerfile.fuzz" --destination "$FUZZ_IMAGE"
-  rules:
-    - when: manual
 
 # ─── BUILD ───────────────────────────────────────────────────────────────────
 
