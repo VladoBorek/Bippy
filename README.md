@@ -22,7 +22,7 @@ dotnet run -- encode
 Decode a mnemonic phrase to retrieve the entropy and seed.
 
 ```powershell
-dotnet run -- decode "photo memory captain decline vendor heavy seminar gloom mouse economy awkward tilt" --format hex
+dotnet run -- decode --words "photo memory captain decline vendor heavy seminar gloom mouse economy awkward tilt" --format hex
 ```
 
 ### Verify
@@ -31,6 +31,15 @@ Verify if a given mnemonic phrase generates the expected seed.
 
 ```powershell
 dotnet run -- verify --phrase "judge square toss mule ill rib bargain paper broken until under roast obtain defy alcohol brass expand jar repair upgrade result govern domain solid" --seed 897f9beefb28fa6660e65a6b77518547d1bf8ad203cae84cf5614174fce86d8c8329547779a319090c4557fd330b36b294a1cc9bcaaf5c3f2b48eefbe5142340 --format hex
+```
+
+### Derive
+
+Derive a hierarchical deterministic key from entropy or seed using a given derivation path.
+
+```powershell
+dotnet run -- derive --entropy 78ba6f96c8a70f71c4acff1c9dc7b35d8988734180d9502eeada775b7cca103e --path "m/44'/0'/0'/0/0" --format hex
+dotnet run -- derive --seed 897f9beefb28fa6660e65a6b77518547d1bf8ad203cae84cf5614174fce86d8c8329547779a319090c4557fd330b36b294a1cc9bcaaf5c3f2b48eefbe5142340 --path "m/44'/0'/0'/0/0" --format hex
 ```
 
 ### Batch Commands
