@@ -1,8 +1,7 @@
-using Moq;
 using BusinessLayer.Cli.Commands.Encode;
 using BusinessLayer.Cli.Utils.Enums;
 using BusinessLayer.Services.Interfaces;
-using BusinessLayer.Services;
+using Moq;
 
 namespace PV286.Project.Tests
 {

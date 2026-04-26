@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,7 +53,7 @@ namespace PV286.Project.Tests
                         services.AddSingleton<IVerifyService, VerifyService>();
 
                         services.AddSingleton<IArgParser, ArgParser>();
-                        services.AddSingleton<ICliParser, VerifyParser>();
+                        services.AddSingleton<CmdParser, VerifyParser>();
                         services.AddHostedService<AppWorker>();
                     })
                     .Build();
@@ -168,7 +168,7 @@ namespace PV286.Project.Tests
             );
 
             Assert.That(code, Is.Not.EqualTo(0));
-            Assert.That(stdout + stderr, Does.Contain("Option '--phrase' is required").IgnoreCase);
+            Assert.That(stdout + stderr, Does.Contain("Missing required option(s) for 'verify': --phrase").IgnoreCase);
         }
 
         [Test]
@@ -182,7 +182,7 @@ namespace PV286.Project.Tests
             );
 
             Assert.That(code, Is.Not.EqualTo(0));
-            Assert.That(stdout + stderr, Does.Contain("Option '--seed' is required").IgnoreCase);
+            Assert.That(stdout + stderr, Does.Contain("Missing required option(s) for 'verify': --seed").IgnoreCase);
         }
 
         [Test]

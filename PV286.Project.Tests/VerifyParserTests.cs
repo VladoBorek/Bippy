@@ -1,18 +1,13 @@
-﻿using BusinessLayer.Cli.Commands.Verify;
+using BusinessLayer.Cli.Commands.Verify;
 using BusinessLayer.Services.Interfaces;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PV286.Project.Tests
 {
     [TestFixture]
     public class VerifyParserTests
     {
-        private Mock<IVerifyService> _verifyServiceMock= null!;
+        private Mock<IVerifyService> _verifyServiceMock = null!;
 
         private const string ValidMnemonic =
             "photo memory captain decline vendor heavy seminar gloom mouse economy awkward tilt";
@@ -68,7 +63,7 @@ namespace PV286.Project.Tests
             var result = parser.Parse(Array.Empty<string>());
 
             Assert.That(result.IsFailed, Is.True);
-            Assert.That(result.Error, Is.EqualTo("Option '--phrase' is required for 'verify'."));
+            Assert.That(result.Error, Is.EqualTo("Missing required option(s) for 'verify': --phrase, --seed."));
         }
 
         [Test]
@@ -101,7 +96,7 @@ namespace PV286.Project.Tests
             var result = parser.Parse(new[] { "--phrase", ValidMnemonic });
 
             Assert.That(result.IsFailed, Is.True);
-            Assert.That(result.Error, Is.EqualTo("Option '--seed' is required for 'verify'."));
+            Assert.That(result.Error, Is.EqualTo("Missing required option(s) for 'verify': --seed."));
         }
 
         [Test]
@@ -112,7 +107,7 @@ namespace PV286.Project.Tests
             var result = parser.Parse(new[] { "--seed", ValidSeedHex, "--format", "hex" });
 
             Assert.That(result.IsFailed, Is.True);
-            Assert.That(result.Error, Is.EqualTo("Option '--phrase' is required for 'verify'."));
+            Assert.That(result.Error, Is.EqualTo("Missing required option(s) for 'verify': --phrase."));
         }
 
         [Test]

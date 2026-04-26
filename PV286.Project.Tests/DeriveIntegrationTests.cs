@@ -53,7 +53,7 @@ namespace PV286.Project.Tests
                         services.AddSingleton<IDeriveService, DeriveService>();
 
                         services.AddSingleton<IArgParser, ArgParser>();
-                        services.AddSingleton<ICliParser, DeriveParser>();
+                        services.AddSingleton<CmdParser, DeriveParser>();
                         services.AddHostedService<AppWorker>();
                     })
                     .Build();

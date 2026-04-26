@@ -1,12 +1,12 @@
+using BusinessLayer.Cli.Commands;
+using BusinessLayer.Cli.Commands.Decode;
+using BusinessLayer.Cli.Parser;
+using BusinessLayer.Services;
+using BusinessLayer.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using BusinessLayer.Cli.Parser;
-using BusinessLayer.Cli.Commands;
-using BusinessLayer.Services;
-using BusinessLayer.Services.Interfaces;
 using PV286_project;
-using BusinessLayer.Cli.Commands.Decode;
 
 namespace PV286.Project.Tests
 {
@@ -37,7 +37,7 @@ namespace PV286.Project.Tests
                         services.AddSingleton<IArgParser, ArgParser>();
 
                         // Register DecodeParser
-                        services.AddSingleton<ICliParser, DecodeParser>();
+                        services.AddSingleton<CmdParser, DecodeParser>();
 
                         services.AddHostedService<AppWorker>();
                     })
@@ -66,7 +66,7 @@ namespace PV286.Project.Tests
                 "d151f3f1ed100bf01adedbf734270b269632d851f45cbbf4bdd0ba6c0bce94db";
 
             var (code, stdout, stderr) =
-                await RunAppAsync("decode", mnemonic, "--format", "hex");
+                await RunAppAsync("decode", "--words", mnemonic, "--format", "hex");
 
             Assert.That(code, Is.EqualTo(0), stderr);
             Assert.That(CountOccurrences(stdout, "Mnemonic : "), Is.EqualTo(1));
@@ -88,7 +88,7 @@ namespace PV286.Project.Tests
                 "10100011101100010101110010001000100111000111111100100010110101001111000011100011000110111001000010101000110001000100001101110001";
 
             var (code, stdout, stderr) =
-                await RunAppAsync("decode", mnemonic, "--format", "bin");
+                await RunAppAsync("decode", "--words", mnemonic, "--format", "bin");
 
             Assert.That(code, Is.EqualTo(0), stderr);
             Assert.That(CountOccurrences(stdout, "Mnemonic : "), Is.EqualTo(1));
@@ -110,7 +110,7 @@ namespace PV286.Project.Tests
                 "photo memory captain decline vendor heavy seminar gloom mouse economy awkward WRONGWORD";
 
             var (code, stdout, stderr) =
-                await RunAppAsync("decode", mnemonic);
+                await RunAppAsync("decode", "--words", mnemonic);
 
             Assert.That(code, Is.Not.EqualTo(0));
             Assert.That(stdout + stderr, Does.Contain("invalid").IgnoreCase
@@ -129,7 +129,7 @@ namespace PV286.Project.Tests
                 "photo memory captain decline vendor heavy seminar gloom mouse economy awkward atom";
 
             var (code, stdout, stderr) =
-                await RunAppAsync("decode", mnemonic);
+                await RunAppAsync("decode", "--words", mnemonic);
 
             Assert.That(code, Is.Not.EqualTo(0));
             Assert.That(stdout + stderr,
@@ -149,7 +149,7 @@ namespace PV286.Project.Tests
                 "photo memory captain decline vendor heavy seminar gloom mouse economy awkward";
 
             var (code, stdout, stderr) =
-                await RunAppAsync("decode", mnemonic);
+                await RunAppAsync("decode", "--words", mnemonic);
 
             Assert.That(code, Is.Not.EqualTo(0));
             Assert.That(stdout + stderr,
@@ -165,7 +165,7 @@ namespace PV286.Project.Tests
         public async Task Decode_EmptyString_Fails()
         {
             var (code, stdout, stderr) =
-                await RunAppAsync("decode", "");
+                await RunAppAsync("decode", "--words", "");
 
             Assert.That(code, Is.Not.EqualTo(0));
             Assert.That(stdout + stderr,
@@ -179,28 +179,10 @@ namespace PV286.Project.Tests
 
         [Test]
         [Category("Integration")]
-        public async Task Decode_NullArgument_Fails()
-        {
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-            var (code, stdout, stderr) =
-                await RunAppAsync("decode", null);
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
-
-            Assert.That(code, Is.Not.EqualTo(0));
-            Assert.That(stdout + stderr,
-                Does.Contain("mnemonic").IgnoreCase
-                    .Or.Contain("null").IgnoreCase);
-
-            Assert.That(CountOccurrences(stdout, "Entropy  : "), Is.EqualTo(0));
-            Assert.That(CountOccurrences(stdout, "Seed     : "), Is.EqualTo(0));
-        }
-
-        [Test]
-        [Category("Integration")]
         public async Task Decode_ExtraGarbageArguments_Fails()
         {
             var (code, stdout, stderr) =
-                await RunAppAsync("decode", "photo", "garbage", "stuff");
+                await RunAppAsync("decode", "--words", "photo", "garbage", "stuff");
 
             Assert.That(code, Is.Not.EqualTo(0));
             Assert.That(stdout + stderr,

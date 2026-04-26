@@ -1,13 +1,12 @@
+using BusinessLayer.Cli.Commands;
+using BusinessLayer.Cli.Commands.Encode;
+using BusinessLayer.Cli.Parser;
+using BusinessLayer.Services;
+using BusinessLayer.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-
-using BusinessLayer.Cli.Parser;
-using BusinessLayer.Cli.Commands;           
-using BusinessLayer.Cli.Commands.Encode;     
-using BusinessLayer.Services;                
-using BusinessLayer.Services.Interfaces;     
-using PV286_project;                        
+using PV286_project;
 
 namespace PV286.Project.Tests
 {
@@ -42,7 +41,7 @@ namespace PV286.Project.Tests
                         services.AddSingleton<IArgParser, ArgParser>();
 
                         // Register command parsers
-                        services.AddSingleton<ICliParser, EncodeParser>();
+                        services.AddSingleton<CmdParser, EncodeParser>();
 
                         // Hosted entry point
                         services.AddHostedService<AppWorker>();
@@ -166,10 +165,10 @@ namespace PV286.Project.Tests
             Assert.That(code, Is.EqualTo(0), stderr);
 
             int mnemonicCount = CountOccurrences(stdout, "Mnemonic : ");
-            int seedCount     = CountOccurrences(stdout, "Seed     : ");
+            int seedCount = CountOccurrences(stdout, "Seed     : ");
 
             Assert.That(mnemonicCount, Is.EqualTo(2));
-            Assert.That(seedCount,     Is.EqualTo(2));
+            Assert.That(seedCount, Is.EqualTo(2));
         }
 
         [Test]
@@ -185,9 +184,9 @@ namespace PV286.Project.Tests
             Assert.That(stdout + stderr, Does.Contain("Invocation failed").IgnoreCase);
 
             int mnemonicCount = CountOccurrences(stdout, "Mnemonic : ");
-            int seedCount     = CountOccurrences(stdout, "Seed     : ");
+            int seedCount = CountOccurrences(stdout, "Seed     : ");
             Assert.That(mnemonicCount, Is.EqualTo(2));
-            Assert.That(seedCount,     Is.EqualTo(2));
+            Assert.That(seedCount, Is.EqualTo(2));
         }
 
         [Test]
@@ -208,9 +207,9 @@ namespace PV286.Project.Tests
                 Assert.That(code, Is.EqualTo(0), stderr);
 
                 int mnemonicCount = CountOccurrences(stdout, "Mnemonic : ");
-                int seedCount     = CountOccurrences(stdout, "Seed     : ");
+                int seedCount = CountOccurrences(stdout, "Seed     : ");
                 Assert.That(mnemonicCount, Is.EqualTo(2));
-                Assert.That(seedCount,     Is.EqualTo(2));
+                Assert.That(seedCount, Is.EqualTo(2));
             }
             finally
             {
@@ -239,9 +238,9 @@ namespace PV286.Project.Tests
                 Assert.That(stdout + stderr, Does.Contain("--bad-flag"));
 
                 int mnemonicCount = CountOccurrences(stdout, "Mnemonic : ");
-                int seedCount     = CountOccurrences(stdout, "Seed     : ");
+                int seedCount = CountOccurrences(stdout, "Seed     : ");
                 Assert.That(mnemonicCount, Is.EqualTo(2));
-                Assert.That(seedCount,     Is.EqualTo(2));
+                Assert.That(seedCount, Is.EqualTo(2));
             }
             finally
             {
@@ -308,9 +307,9 @@ namespace PV286.Project.Tests
 
             // Expected successes: 7 (1,2,3,6,9,10,11)
             int mnemonicCount = CountOccurrences(stdout, "Mnemonic : ");
-            int seedCount     = CountOccurrences(stdout, "Seed     : ");
+            int seedCount = CountOccurrences(stdout, "Seed     : ");
             Assert.That(mnemonicCount, Is.GreaterThanOrEqualTo(7));
-            Assert.That(seedCount,     Is.GreaterThanOrEqualTo(7));
+            Assert.That(seedCount, Is.GreaterThanOrEqualTo(7));
 
             // Confirm batch continued after failures (blank line prints between invocations)
             Assert.That(stdout, Does.Contain(Environment.NewLine + Environment.NewLine));
@@ -336,9 +335,9 @@ namespace PV286.Project.Tests
             Assert.That(code, Is.Not.EqualTo(0));
 
             int mnemonicCount = CountOccurrences(stdout, "Mnemonic : ");
-            int seedCount     = CountOccurrences(stdout, "Seed     : ");
+            int seedCount = CountOccurrences(stdout, "Seed     : ");
             Assert.That(mnemonicCount, Is.EqualTo(0));
-            Assert.That(seedCount,     Is.EqualTo(0));
+            Assert.That(seedCount, Is.EqualTo(0));
 
             Assert.That(stdout + stderr, Does.Contain("Invocation failed").IgnoreCase);
 
