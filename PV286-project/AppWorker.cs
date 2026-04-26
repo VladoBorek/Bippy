@@ -88,6 +88,12 @@ public class AppWorker : BackgroundService
         var source = consoleArgs.args[1];
         bool isStdin = source == "-";
 
+        if (!isStdin && !File.Exists(source))
+        {
+            await Console.Error.WriteLineAsync("Source file does not exist");
+            return false;
+        }
+
         if (isStdin)
         {
             lines = ReadStdinLines();
