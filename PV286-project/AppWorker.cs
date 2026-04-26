@@ -74,7 +74,7 @@ public class AppWorker : BackgroundService
 
         if (isBatchContext && parsedCommandRes.Value is HelpCommand)
         {
-            Console.Error.WriteLine("Batch processing cannot execute help commands. \n");
+            Console.Error.WriteLine("Batch processing cannot execute help commands.");
             return false;
         }
 

@@ -1,4 +1,5 @@
-﻿using BusinessLayer.Cli.Commands.Decode;
+using BusinessLayer.Cli.Commands;
+using BusinessLayer.Cli.Commands.Decode;
 using BusinessLayer.Cli.Commands.Derive;
 using BusinessLayer.Cli.Commands.Encode;
 using BusinessLayer.Cli.Commands.Help;
@@ -48,11 +49,11 @@ namespace PV286_project
 
 
                         services.AddSingleton<IArgParser, ArgParser>();
-                        services.AddSingleton<EncodeParser>();
-                        services.AddSingleton<DecodeParser>();
-                        services.AddSingleton<VerifyParser>();
-                        services.AddSingleton<HelpParser>();
-                        services.AddSingleton<DeriveParser>();
+                        services.AddSingleton<CmdParser, EncodeParser>();
+                        services.AddSingleton<CmdParser, DecodeParser>();
+                        services.AddSingleton<CmdParser, VerifyParser>();
+                        services.AddSingleton<CmdParser, HelpParser>();
+                        services.AddSingleton<CmdParser, DeriveParser>();
 
                         // AppWorker is the application's main entry point via IHostedService.
                         // The host starts it, awaits its completion, then shuts down cleanly.
