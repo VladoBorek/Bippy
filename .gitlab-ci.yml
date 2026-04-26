@@ -37,7 +37,7 @@ build_fuzz_image:
   tags:
     - shared-fi
   variables:
-    FUZZ_IMAGE: "$CI_REGISTRY_IMAGE/dotnet-afl-sharpfuzz:latest"
+    FUZZ_IMAGE: "$CI_REGISTRY/pv286/teams/team-33/dotnet-afl-sharpfuzz:latest"
   script:
     - test -n "$CI_REGISTRY_IMAGE" || (echo "Container Registry is not enabled for this project." && exit 1)
     - mkdir -p /kaniko/.docker
