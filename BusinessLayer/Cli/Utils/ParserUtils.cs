@@ -23,5 +23,12 @@ namespace BusinessLayer.Cli.Utils
                 "bin" => Result.Ok(ValueFormat.Bin),
                 _ => Result.Fail<ValueFormat>("Format must be 'hex' or 'bin'."),
             };
+
+        public static byte[] ParseBytes(string value, ValueFormat format) =>
+            format == ValueFormat.Hex
+                ? Convert.FromHexString(value)
+                : Enumerable.Range(0, value.Length / 8)
+                            .Select(i => Convert.ToByte(value.Substring(i * 8, 8), 2))
+                            .ToArray();
     }
 }
