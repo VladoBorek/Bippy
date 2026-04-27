@@ -83,7 +83,7 @@ fuzz_job:
     - sharpfuzz ./fuzz-bin/ResultPattern.dll
     - mkdir -p ./fuzz-findings
     - set +e
-    - timeout 120s afl-fuzz -i ./PV286.Project.Fuzz/Testcases -o ./fuzz-findings -x ./PV286.Project.Fuzz/cli.dict -t 10000 -m none -- dotnet ./fuzz-bin/PV286.Project.Fuzz.dll
+    - timeout 300s afl-fuzz -i ./PV286.Project.Fuzz/Testcases -o ./fuzz-findings -x ./PV286.Project.Fuzz/cli.dict -t 10000 -m none -- dotnet ./fuzz-bin/PV286.Project.Fuzz.dll
     - status=$?
     - set -e
     - |
@@ -92,6 +92,19 @@ fuzz_job:
       elif [ "$status" -ne 0 ]; then
         echo "Fuzzing command failed with exit code $status."
         exit "$status"
+      fi
+
+    - |
+      if find ./fuzz-findings/default/crashes -type f ! -name 'README.txt' | grep -q .; then
+        echo "AFL found crashes:"
+        find ./fuzz-findings/default/crashes -type f ! -name 'README.txt'
+        exit 1
+      fi
+
+      if find ./fuzz-findings/default/hangs -type f ! -name 'README.txt' | grep -q .; then
+        echo "AFL found hangs:"
+        find ./fuzz-findings/default/hangs -type f ! -name 'README.txt'
+        exit 1
       fi
 
   artifacts:

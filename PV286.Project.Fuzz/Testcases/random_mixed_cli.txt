@@ -1,0 +1,1 @@
+--seed encode m//0 nothex --format derive abandon zzzz --path json
