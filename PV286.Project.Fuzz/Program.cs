@@ -30,13 +30,13 @@ internal static class Program
 
     private static ArgParser CreateCliParser()
     {
-        return new ArgParser(new ICliParser[]
+        return new ArgParser(new CmdParser[]
         {
-            new EncodeParser(new EncodeService()),
-            new DecodeParser(new DecodeService()),
-            new VerifyParser(new VerifyService()),
-            new DeriveParser(new DeriveService()),
-            new HelpParser()
+        new EncodeParser(new EncodeService()),
+        new DecodeParser(new DecodeService()),
+        new VerifyParser(new VerifyService()),
+        new DeriveParser(new DeriveService()),
+        new HelpParser()
         });
     }
 

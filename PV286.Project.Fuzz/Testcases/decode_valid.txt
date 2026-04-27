@@ -1,1 +1,1 @@
-decode abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about --format hex
+decode --words abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about --format hex
