@@ -1,0 +1,1 @@
+encode --entropy 00000000000000000000000000000000 --entropy ffffffffffffffffffffffffffffffff --format hex
