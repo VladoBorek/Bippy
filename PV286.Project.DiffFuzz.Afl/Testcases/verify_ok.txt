@@ -1,0 +1,3 @@
+op=verify-ok
+entropy=7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f
+path=m

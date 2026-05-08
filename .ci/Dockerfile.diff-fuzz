@@ -1,0 +1,17 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0
+
+RUN apt-get update -qq \
+    && apt-get install -y --no-install-recommends \
+       afl++ bash coreutils findutils ca-certificates sed curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Our project targets net9.0, Team B targets net10.0.
+# The base image has .NET 10; this adds .NET 9 SDK/targeting packs too.
+RUN curl -sSL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh \
+    && bash /tmp/dotnet-install.sh --channel 9.0 --install-dir /usr/share/dotnet \
+    && rm /tmp/dotnet-install.sh
+
+RUN dotnet tool install --global SharpFuzz.CommandLine --version 2.2.0
+
+ENV PATH="${PATH}:/root/.dotnet/tools"
+WORKDIR /work/Project
