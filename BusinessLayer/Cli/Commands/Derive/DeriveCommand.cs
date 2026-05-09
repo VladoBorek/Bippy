@@ -1,5 +1,6 @@
 using BusinessLayer.Cli.Utils.Enums;
 using BusinessLayer.Services.Interfaces;
+using NBitcoin;
 
 namespace BusinessLayer.Cli.Commands.Derive
 {
@@ -46,10 +47,20 @@ namespace BusinessLayer.Cli.Commands.Derive
 
             try
             {
-                var input = entropy ?? seed!;
-
-                ValidateFormat(input, format);
-                seedBytes = StringToBytes(input, format);
+                if (entropy is not null)
+                {
+                    // ENTROPY PIPELINE: entropy -> BIP39 mnemonic -> BIP39 seed
+                    ValidateFormat(entropy, format);
+                    byte[] entropyBytes = StringToBytes(entropy, format);
+                    var mnemonic = new Mnemonic(Wordlist.English, entropyBytes);
+                    seedBytes = mnemonic.DeriveSeed();
+                }
+                else
+                {
+                    // SEED PIPELINE: raw seed bytes
+                    ValidateFormat(seed!, format);
+                    seedBytes = StringToBytes(seed!, format);
+                }
             }
             catch (Exception ex)
             {
