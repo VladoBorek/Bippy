@@ -46,15 +46,16 @@ internal sealed class OurMnemonicApi
 
     public DerivedKeysResult DeriveFromEntropy(byte[] entropy, string? path)
     {
-        // This intentionally mirrors our current CLI behavior:
-        // the CLI passes --entropy bytes directly into DeriveService as the BIP32 seed.
-        // Differential fuzzing should expose whether that behavior disagrees with Team B.
-        var result = Require(derive.Derive(entropy, path), "ours derive entropy");
+        var mnemonic = new NBitcoin.Mnemonic(NBitcoin.Wordlist.English, entropy);
+        var seed = mnemonic.DeriveSeed();
+
+        var result = Require(derive.Derive(seed, path), "ours derive entropy");
 
         return new DerivedKeysResult(
             result.ExtendedPrivateKey,
             result.ExtendedPublicKey);
     }
+
 
     private static T Require<T>(Result<T> result, string operation)
     {
