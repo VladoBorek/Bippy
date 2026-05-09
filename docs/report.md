@@ -1,10 +1,10 @@
 # PV286 Project Report - Team 33
 
-## Part A: Implementation Description
+## Part A: Our Implementation
 
 **Technology Stack:** C# .NET 9.0, NBitcoin 9.0.5, Microsoft.Extensions DI
 
-**Architecture:** 5-tier layered design: Presentation (CLI handlers), Business Logic (Services), Parsers & Validators, DTOs, and Utility (Result Pattern). Uses Command Pattern with dependency injection for extensibility, Service Layer Pattern for business logic abstraction, and Result Pattern for explicit error handling.
+**Architecture:** We built a 5-tier layered architecture: Presentation (CLI handlers), Business Logic (Services), Parsers & Validators, DTOs, and Utility (Result Pattern). This structure uses the Command Pattern with dependency injection for extensibility, Service Layer Pattern for clean business logic abstraction, and an explicit Result Pattern for error handling.
 
 ## Quality Assessment
 
@@ -21,16 +21,16 @@
 - Some validators have high cyclomatic complexity and would benefit from refactoring into smaller methods
 - Batch command error handling lacks granularity (no fail-fast or continue-on-error options)
 
-## Collaboration & Design Improvements
-- **Team Collaboration:** Flawless coordination and knowledge sharing
-- **Design Improvements:** Refactor high-complexity validators into smaller, focused methods to reduce cyclomatic complexity
+## Collaboration
+- **Team Coordination:** Flawless coordination
+- **Lessons for Improvement:** We identified that some validators have higher cyclomatic complexity than ideal and could benefit from breaking them into smaller, more focused methods
 
-## Tools & Fuzzing Strategy
-- **Static Analysis (SecurityCodeScan, SonarAnalyzer):** Identified security vulnerabilities and code complexity patterns, reducing manual review burden
-- **xUnit.NET & Integration Tests:** Comprehensive test coverage including end-to-end command workflows; caught integration issues unit tests missed
-- **SharpFuzz:** Out-of-process fuzzing with domain-specific dictionary (cli.dict) guiding fuzzer to relevant code paths
-- **Differential Fuzzing (AFL++):** Comparative testing against Team B's implementation; discovered critical cryptographic correctness issue
-- **Impact:** Fuzzing identified semantic errors traditional testing missed
+# Used tools
+- **Static Analysis (SecurityCodeScan, SonarAnalyzer):** These tools caught security issues and complexity hotspots we might have missed
+- **xUnit.NET & Integration Tests:** We built comprehensive tests covering full workflows
+- **SharpFuzz:** We used out-of-process fuzzing with our custom dictionary (cli.dict) to guide the fuzzer toward meaningful code paths
+- **Differential Fuzzing (AFL++):** By comparing our implementation against Team B's, we found a critical bug in our cryptographic handling
+- **Key Insight:** Fuzzing caught logic errors that traditional testing simply couldn't expose
 
 ## Most Interesting Issues: 
 
@@ -64,7 +64,7 @@
 
 ---
 
-## Part B: Team 34 Implementation Review
+## Part B: Comparing Our Approach with Team 34
 
 **Technology Stack:** C# .NET 10.0, NBitcoin 10.0.1, NUnit 4.3.2, Microsoft.Extensions DI
 
@@ -82,8 +82,14 @@
 
 ## Tools & Fuzzing Strategy
 
-Team 34 employed same tools: NUnit for testing, static analysis during development, and differential fuzzing with AFL++. Fuzzing provided equivalent value in validating cryptographic correctness through comparative testing against Team 33.
+Team 34 used the same tooling approach: NUnit for tests and static analysis during dev. The differential fuzzing runs validated correctness by comparing our application behaviour against theirs.
 
-## Key Implementation Notes
+## Key Differences
 
-Team 34's architecture prioritizes simplicity with 3-tier design vs. Team 33's 5-tier layered approach. Error handling uses exceptions (`ArgumentException`) for validation failures rather than explicit `Result<T>` pattern. Both approaches passed differential fuzzing validation, confirming correctness of cryptographic implementations.
+Team 34 went for a simpler 3-tier design compared to our 5-tier architecture. They use exceptions (`ArgumentException`) for validation failures where we use an explicit `Result<T>` pattern. Both approaches are valid. 
+
+## Overall project feedback
+
+It was interesting that this project offered great freedom regarding programming languages. The project requirements are not extensive, in fact, the scope is quite small. The limited scope combined with the available BIP libraries made the implementation relatively straightforward. The most complex part was definitely designing a proper architecture for CLI software. In the SWE program, every project until now has been about webdev, so this was a refreshing change of perspective. Stefan, who is also enrolled in PA193, mentioned that the course is much better when studied alongside the seminars. The issue is that PA193 isn't part of the SWE curriculum, so PA286 should also work well as a standalone course. The real problem is that the course provides the theoretical knowledge but lacks practical examples of how to use them. Each language has completely different ecosystems with tools that vary wildly in usefulness and documentation. It would help significantly to narrow the scope to just one or two languages and provide working examples of the right tools and how to use them for those specific languages.
+
+Overall, the project is well-structured and enables students to use proper security and code quality tools, but it could be improved with more focused guidance.
