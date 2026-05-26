@@ -1,5 +1,14 @@
 # PV286-project
 
+## Project Description
+
+Bippy is a security-focused command-line wallet utility for working with BIP-39 mnemonics and BIP-32 key derivation. It provides functionality for encoding and decoding mnemonic phrases, verifying inputs, deriving seeds and keys, and testing wallet-related cryptographic behavior through a structured CLI interface.
+
+The project was built with a strong focus on secure coding practices, correctness, and maintainability. It separates core business logic from CLI handling and testing infrastructure, making the codebase easier to understand, extend, and verify. During development, We worked with applied cryptography concepts, deterministic wallet standards, defensive input validation, automated testing, static analysis, fuzzing, and differential fuzzing.
+
+A major goal of the project was not only to implement the required wallet functionality, but also to explore how security-sensitive software can be tested and validated more rigorously.
+
+
 ## Basic Usage
 
 To run the application, navigate to the `PV286-project` directory and use the `dotnet run` command.
