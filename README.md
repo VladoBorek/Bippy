@@ -8,6 +8,11 @@ The project was built with a strong focus on secure coding practices, correctnes
 
 A major goal of the project was not only to implement the required wallet functionality, but also to explore how security-sensitive software can be tested and validated more rigorously.
 
+## Project Demo
+
+A short demo presentation showing the project goals, security-focused design, implemented wallet functionality, testing approach, and fuzzing workflow.
+
+[![Watch the project demo](docs/demo-preview.png)](https://drive.google.com/file/d/1mbNCz2fPgxJ4FlxY98lEa8Q2H8dmhGVi/view?usp=sharing)
 
 ## Basic Usage
 
